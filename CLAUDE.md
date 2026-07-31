@@ -10,6 +10,11 @@ This repository uses a three-role harness for Claude-based engineering work.
 - Primary resources root: `src/main/resources`
 - Reference documents: `documents/`
 
+## Project Rules
+
+- For document-driven API work, follow `.claude/rules/reference-documents.md`.
+- For implementation patterns, follow `.claude/rules/implementation-conventions.md`.
+
 ## Default Commands
 
 - Build: `./gradlew.bat build`
@@ -22,16 +27,26 @@ On Windows PowerShell, prefer `.\gradlew.bat test` and `.\gradlew.bat build`.
 
 Use the roles below as separate mental lanes. If subagents are available, assign work to separate agents. If subagents are not available, execute the same process sequentially and label each section clearly.
 
-For implementation requests, use a human-in-the-loop checkpoint flow by default:
+For implementation requests, always present a short PM brief before implementation unless the user explicitly asks for autonomous execution.
 
-1. PM prepares the task summary and acceptance criteria.
-2. Stop and ask the user to confirm or revise the PM brief.
-3. Developer implements only after PM approval.
-4. Stop and show the changed files and implementation notes.
-5. QA verifies after implementation review.
-6. Stop and show verification results and residual risks.
+After the PM brief is approved, continue through Developer -> QA without pausing when the request is clear, the scope is contained, and the work stays within the approved criteria.
 
-Skip these checkpoints only when the user explicitly asks for fully autonomous execution.
+Pause after PM approval only when a Human Review Trigger appears.
+
+## Human Review Triggers
+
+Pause and ask the user before continuing when one of these triggers appears:
+
+- Requirements are ambiguous or have multiple valid interpretations.
+- Acceptance criteria would change user-visible behavior or product expectations.
+- Implementation requires scope beyond the approved PM brief.
+- Developer discovers a requirement question that cannot be answered from repository context.
+- QA finds that acceptance criteria are missing, conflicting, or not testable.
+- The Build/QA loop budget is exhausted.
+- The change touches security, credentials, user data, destructive operations, database schema, or production/runtime configuration.
+- The user rejects or revises any role output.
+
+When none of these triggers apply, complete the PM -> Developer -> QA loop and report the completed loop in the final summary.
 
 ## Feedback Loop Rules
 
@@ -57,9 +72,9 @@ User Request
 -> PM Brief
 -> User Approval
 -> Developer Implementation
--> Implementation Review
+-> Human Review Trigger check
 -> QA Verification
--> Final User Review
+-> Final Summary
 ```
 
 Failure paths:
@@ -73,6 +88,22 @@ QA failed criterion -> Developer correction -> QA reverification
 QA untestable criterion -> PM revision -> Developer adjustment -> QA reverification
 Verification blocked -> report blocker -> wait for user or environment fix
 ```
+
+## Build/QA Loop Budget
+
+Default Build/QA loop budget is 3 attempts per approved PM brief.
+
+- Attempt 1: Verify the initial implementation.
+- Attempt 2: Verify fixes for failed acceptance criteria.
+- Attempt 3: Verify remaining regressions or side effects.
+
+If the same acceptance criterion fails after 3 attempts, stop implementation and return to PM for scope, requirement, or design review.
+
+If different failures continue to appear after 3 attempts, stop and return to PM to split the task, revise acceptance criteria, or reconsider the design.
+
+If failures are caused by environment issues, report the blocker instead of consuming additional loop attempts.
+
+Reset the loop budget only when the user approves a revised PM brief.
 
 Role-specific prompts are stored in:
 
@@ -170,9 +201,11 @@ Recommended order:
 - Check `git status --short` before and after edits.
 - Prefer `rg` for search.
 - Use Gradle wrapper commands from the repository root.
-- For feature work, pause at PM, Developer, and QA handoff points so the user can inspect progress.
+- For feature work, always present the PM brief before implementation unless the user explicitly asks for autonomous execution.
+- After PM approval, pause for user review only when a Human Review Trigger appears.
 - Treat failed acceptance criteria as loop inputs, not final failure states.
 - Every loop must preserve the latest approved PM brief as the source of truth.
+- Do not exceed the Build/QA loop budget without returning to PM and asking for user confirmation.
 - Keep final summaries concise and mention tests actually run.
 - If a command cannot be run, explain the blocker and the verification gap.
 

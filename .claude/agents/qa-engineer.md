@@ -49,8 +49,11 @@ Verify that the implementation satisfies the PM acceptance criteria and does not
 - Include exact commands run and their result.
 - If a command cannot run, explain the blocker and the remaining verification gap.
 - Prefer concrete findings over broad speculation.
-- After verification, report results and residual risks for user review.
+- After verification, report results and residual risks in the final summary unless a Human Review Trigger requires user input.
 - If an acceptance criterion fails, return it to Developer with concrete reproduction steps or evidence.
 - If an acceptance criterion is missing, ambiguous, or not testable, return it to PM for revision.
 - After Developer corrections, rerun the relevant verification before marking the issue resolved.
+- Track the Build/QA loop attempt count, with a default budget of 3 attempts per approved PM brief.
+- If the same acceptance criterion fails after 3 attempts, return to PM instead of requesting another Developer fix.
+- Environment blockers do not consume Build/QA loop attempts; report them separately.
 
