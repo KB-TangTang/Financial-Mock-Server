@@ -171,6 +171,7 @@ CREATE TABLE IF NOT EXISTS mock_codef_account (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
+  UNIQUE KEY uk_mock_codef_account_connection_no (connection_id, account_no_masked),
   KEY idx_mock_codef_account_connection (connection_id, status),
   KEY idx_mock_codef_account_institution (institution_id, account_type),
   CONSTRAINT fk_mock_codef_account_connection
@@ -238,4 +239,542 @@ ON DUPLICATE KEY UPDATE
   app_code = VALUES(app_code),
   latency_ms = VALUES(latency_ms),
   is_default = VALUES(is_default),
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_api_endpoint (
+  provider,
+  method,
+  path,
+  operation_key,
+  description
+) VALUES
+  ('INTERNAL', 'GET', '/api/v1/accounts/banks', 'account_bank_list', '연동 지원 금융기관 목록 조회'),
+  ('INTERNAL', 'POST', '/api/v1/accounts/verify', 'account_verify', '계좌 본인 인증 요청'),
+  ('INTERNAL', 'POST', '/api/v1/accounts', 'account_connect', '연결 계좌 선택 및 등록'),
+  ('INTERNAL', 'DELETE', '/api/v1/accounts/{accountId}', 'account_disconnect', '연결 계좌 해제'),
+  ('INTERNAL', 'GET', '/api/v1/assets/dashboard', 'asset_dashboard', '자산 대시보드 조회'),
+  ('INTERNAL', 'GET', '/api/v1/assets/accounts', 'asset_account_list', '은행 자산 상세 조회'),
+  ('INTERNAL', 'GET', '/api/v1/assets/stocks', 'asset_stock_list', '주식 자산 상세 조회'),
+  ('INTERNAL', 'GET', '/api/v1/assets/payMoney', 'asset_pay_money_list', '페이머니 상세 조회'),
+  ('INTERNAL', 'GET', '/api/v1/assets/loans', 'asset_loan_list', '대출 상세 조회'),
+  ('INTERNAL', 'GET', '/api/v1/transactions', 'transaction_list', '거래내역 조회'),
+  ('INTERNAL', 'GET', '/api/v1/transactions/monthly', 'transaction_monthly', '월간 거래내역 조회'),
+  ('INTERNAL', 'GET', '/api/v1/transactions/search', 'transaction_search', '거래내역 검색'),
+  ('INTERNAL', 'PATCH', '/api/v1/transactions/{transactionId}/category', 'transaction_category_update', '거래 카테고리 수정'),
+  ('CODEF', 'POST', '/codef/v1/account/list', 'codef_account_list', 'CODEF 계좌 목록 응답 목'),
+  ('CODEF', 'POST', '/codef/v1/account/transactions', 'codef_transaction_list', 'CODEF 거래내역 응답 목'),
+  ('CODEF', 'POST', '/codef/v1/account/balance', 'codef_balance', 'CODEF 잔액 응답 목')
+ON DUPLICATE KEY UPDATE
+  provider = VALUES(provider),
+  operation_key = VALUES(operation_key),
+  description = VALUES(description),
+  is_active = 1,
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_user (
+  scenario_key,
+  nickname,
+  email
+) VALUES
+  ('demo-normal-user', '정상 테스트 사용자', 'normal.user@example.com'),
+  ('demo-empty-user', '빈 데이터 테스트 사용자', 'empty.user@example.com')
+ON DUPLICATE KEY UPDATE
+  nickname = VALUES(nickname),
+  email = VALUES(email),
+  is_active = 1,
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_codef_institution (
+  codef_org_code,
+  name,
+  type,
+  is_supported
+) VALUES
+  ('0004', '국민은행', 'BANK', 1),
+  ('0088', '신한은행', 'BANK', 1),
+  ('0020', '우리은행', 'BANK', 1),
+  ('0003', '기업은행', 'BANK', 1)
+ON DUPLICATE KEY UPDATE
+  name = VALUES(name),
+  type = VALUES(type),
+  is_supported = VALUES(is_supported),
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_codef_connection (
+  user_id,
+  institution_id,
+  connected_id,
+  status,
+  consent_expired_at,
+  last_synced_at
+)
+SELECT
+  u.id,
+  i.id,
+  'conn-demo-normal-kb',
+  'CONNECTED',
+  '2027-07-31 23:59:59',
+  '2026-07-31 10:30:00'
+FROM mock_user u
+JOIN mock_codef_institution i ON i.codef_org_code = '0004'
+WHERE u.scenario_key = 'demo-normal-user'
+ON DUPLICATE KEY UPDATE
+  user_id = VALUES(user_id),
+  institution_id = VALUES(institution_id),
+  status = VALUES(status),
+  consent_expired_at = VALUES(consent_expired_at),
+  last_synced_at = VALUES(last_synced_at),
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_codef_connection (
+  user_id,
+  institution_id,
+  connected_id,
+  status,
+  consent_expired_at,
+  last_synced_at
+)
+SELECT
+  u.id,
+  i.id,
+  'conn-demo-empty-shinhan',
+  'CONNECTED',
+  '2027-07-31 23:59:59',
+  '2026-07-31 10:30:00'
+FROM mock_user u
+JOIN mock_codef_institution i ON i.codef_org_code = '0088'
+WHERE u.scenario_key = 'demo-empty-user'
+ON DUPLICATE KEY UPDATE
+  user_id = VALUES(user_id),
+  institution_id = VALUES(institution_id),
+  status = VALUES(status),
+  consent_expired_at = VALUES(consent_expired_at),
+  last_synced_at = VALUES(last_synced_at),
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_codef_account (
+  connection_id,
+  institution_id,
+  account_type,
+  account_no_masked,
+  account_no_encrypted,
+  account_name,
+  currency,
+  status,
+  opened_at,
+  raw_json
+)
+SELECT
+  c.id,
+  i.id,
+  'DEPOSIT',
+  '123456******7890',
+  'mock-encrypted-account-001',
+  'KB Star 입출금통장',
+  'KRW',
+  'ACTIVE',
+  '2024-01-15',
+  JSON_OBJECT(
+    'resAccount', '123456******7890',
+    'resAccountName', 'KB Star 입출금통장',
+    'resAccountDeposit', '보통예금',
+    'resAccountCurrency', 'KRW'
+  )
+FROM mock_codef_connection c
+JOIN mock_codef_institution i ON i.id = c.institution_id
+WHERE c.connected_id = 'conn-demo-normal-kb'
+ON DUPLICATE KEY UPDATE
+  account_name = VALUES(account_name),
+  currency = VALUES(currency),
+  status = VALUES(status),
+  raw_json = VALUES(raw_json),
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_codef_transaction (
+  account_id,
+  codef_tr_key,
+  transaction_at,
+  merchant_name,
+  amount,
+  direction,
+  balance_after,
+  raw_json
+)
+SELECT
+  a.id,
+  'tr-demo-20260731-001',
+  '2026-07-31 08:12:00',
+  '스타벅스 강남점',
+  5800.00,
+  'WITHDRAW',
+  1244200.00,
+  JSON_OBJECT(
+    'resAccountTrDate', '20260731',
+    'resAccountTrTime', '081200',
+    'resAccountDesc1', '스타벅스 강남점',
+    'resAccountOut', '5800',
+    'resAfterTranBalance', '1244200'
+  )
+FROM mock_codef_account a
+WHERE a.account_no_masked = '123456******7890'
+ON DUPLICATE KEY UPDATE
+  merchant_name = VALUES(merchant_name),
+  amount = VALUES(amount),
+  direction = VALUES(direction),
+  balance_after = VALUES(balance_after),
+  raw_json = VALUES(raw_json),
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_codef_transaction (
+  account_id,
+  codef_tr_key,
+  transaction_at,
+  merchant_name,
+  amount,
+  direction,
+  balance_after,
+  raw_json
+)
+SELECT
+  a.id,
+  'tr-demo-20260730-001',
+  '2026-07-30 12:35:00',
+  '쿠팡',
+  32900.00,
+  'WITHDRAW',
+  1250000.00,
+  JSON_OBJECT(
+    'resAccountTrDate', '20260730',
+    'resAccountTrTime', '123500',
+    'resAccountDesc1', '쿠팡',
+    'resAccountOut', '32900',
+    'resAfterTranBalance', '1250000'
+  )
+FROM mock_codef_account a
+WHERE a.account_no_masked = '123456******7890'
+ON DUPLICATE KEY UPDATE
+  merchant_name = VALUES(merchant_name),
+  amount = VALUES(amount),
+  direction = VALUES(direction),
+  balance_after = VALUES(balance_after),
+  raw_json = VALUES(raw_json),
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_codef_transaction (
+  account_id,
+  codef_tr_key,
+  transaction_at,
+  merchant_name,
+  amount,
+  direction,
+  balance_after,
+  raw_json
+)
+SELECT
+  a.id,
+  'tr-demo-20260725-001',
+  '2026-07-25 09:00:00',
+  '급여',
+  2500000.00,
+  'DEPOSIT',
+  1282900.00,
+  JSON_OBJECT(
+    'resAccountTrDate', '20260725',
+    'resAccountTrTime', '090000',
+    'resAccountDesc1', '급여',
+    'resAccountIn', '2500000',
+    'resAfterTranBalance', '1282900'
+  )
+FROM mock_codef_account a
+WHERE a.account_no_masked = '123456******7890'
+ON DUPLICATE KEY UPDATE
+  merchant_name = VALUES(merchant_name),
+  amount = VALUES(amount),
+  direction = VALUES(direction),
+  balance_after = VALUES(balance_after),
+  raw_json = VALUES(raw_json),
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_codef_balance_snapshot (
+  account_id,
+  snapshot_at,
+  balance,
+  available_amount,
+  valuation_amount,
+  raw_json
+)
+SELECT
+  a.id,
+  '2026-07-31 10:30:00',
+  1244200.00,
+  1244200.00,
+  1244200.00,
+  JSON_OBJECT(
+    'resAccountBalance', '1244200',
+    'resAccountAvailableBalance', '1244200',
+    'resAccountCurrency', 'KRW'
+  )
+FROM mock_codef_account a
+WHERE a.account_no_masked = '123456******7890'
+ON DUPLICATE KEY UPDATE
+  balance = VALUES(balance),
+  available_amount = VALUES(available_amount),
+  valuation_amount = VALUES(valuation_amount),
+  raw_json = VALUES(raw_json),
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_api_response_fixture (
+  endpoint_id,
+  scenario_id,
+  fixture_name,
+  request_match_json,
+  response_json,
+  http_status,
+  app_code,
+  priority
+)
+SELECT
+  e.id,
+  s.id,
+  'normal-account-list',
+  JSON_OBJECT('scenarioKey', 'demo-normal-user'),
+  JSON_OBJECT(
+    'code', 'SUCCESS',
+    'message', '계좌 목록 조회 성공',
+    'data', JSON_OBJECT(
+      'accounts', JSON_ARRAY(
+        JSON_OBJECT(
+          'accountId', 1,
+          'bankCode', '0004',
+          'bankName', '국민은행',
+          'accountType', 'DEPOSIT',
+          'accountName', 'KB Star 입출금통장',
+          'accountNoMasked', '123456******7890',
+          'currency', 'KRW',
+          'balance', 1244200,
+          'lastSyncAt', '2026-07-31T10:30:00+09:00'
+        )
+      )
+    ),
+    'traceId', '01J3MOCKACCOUNTLIST',
+    'timestamp', '2026-07-31T10:30:00+09:00'
+  ),
+  200,
+  'SUCCESS',
+  10
+FROM mock_api_endpoint e
+JOIN mock_scenario s ON s.scenario_code = 'NORMAL'
+WHERE e.operation_key = 'asset_account_list'
+ON DUPLICATE KEY UPDATE
+  request_match_json = VALUES(request_match_json),
+  response_json = VALUES(response_json),
+  http_status = VALUES(http_status),
+  app_code = VALUES(app_code),
+  priority = VALUES(priority),
+  is_active = 1,
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_api_response_fixture (
+  endpoint_id,
+  scenario_id,
+  fixture_name,
+  request_match_json,
+  response_json,
+  http_status,
+  app_code,
+  priority
+)
+SELECT
+  e.id,
+  s.id,
+  'empty-account-list',
+  JSON_OBJECT('scenarioKey', 'demo-empty-user'),
+  JSON_OBJECT(
+    'code', 'SUCCESS',
+    'message', '연결된 계좌가 없습니다',
+    'data', JSON_OBJECT('accounts', JSON_ARRAY()),
+    'traceId', '01J3MOCKEMPTYACCOUNT',
+    'timestamp', '2026-07-31T10:30:00+09:00'
+  ),
+  200,
+  'SUCCESS',
+  20
+FROM mock_api_endpoint e
+JOIN mock_scenario s ON s.scenario_code = 'EMPTY_DATA'
+WHERE e.operation_key = 'asset_account_list'
+ON DUPLICATE KEY UPDATE
+  request_match_json = VALUES(request_match_json),
+  response_json = VALUES(response_json),
+  http_status = VALUES(http_status),
+  app_code = VALUES(app_code),
+  priority = VALUES(priority),
+  is_active = 1,
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_api_response_fixture (
+  endpoint_id,
+  scenario_id,
+  fixture_name,
+  request_match_json,
+  response_json,
+  http_status,
+  app_code,
+  priority
+)
+SELECT
+  e.id,
+  s.id,
+  'normal-transaction-list',
+  JSON_OBJECT('scenarioKey', 'demo-normal-user', 'yearMonth', '2026-07'),
+  JSON_OBJECT(
+    'code', 'SUCCESS',
+    'message', '거래내역 조회 성공',
+    'data', JSON_OBJECT(
+      'transactions', JSON_ARRAY(
+        JSON_OBJECT('transactionId', 1, 'transactionAt', '2026-07-31T08:12:00+09:00', 'merchantName', '스타벅스 강남점', 'amount', 5800, 'direction', 'WITHDRAW', 'balanceAfter', 1244200),
+        JSON_OBJECT('transactionId', 2, 'transactionAt', '2026-07-30T12:35:00+09:00', 'merchantName', '쿠팡', 'amount', 32900, 'direction', 'WITHDRAW', 'balanceAfter', 1250000),
+        JSON_OBJECT('transactionId', 3, 'transactionAt', '2026-07-25T09:00:00+09:00', 'merchantName', '급여', 'amount', 2500000, 'direction', 'DEPOSIT', 'balanceAfter', 1282900)
+      )
+    ),
+    'traceId', '01J3MOCKTRANSACTION',
+    'timestamp', '2026-07-31T10:30:00+09:00'
+  ),
+  200,
+  'SUCCESS',
+  10
+FROM mock_api_endpoint e
+JOIN mock_scenario s ON s.scenario_code = 'NORMAL'
+WHERE e.operation_key = 'transaction_list'
+ON DUPLICATE KEY UPDATE
+  request_match_json = VALUES(request_match_json),
+  response_json = VALUES(response_json),
+  http_status = VALUES(http_status),
+  app_code = VALUES(app_code),
+  priority = VALUES(priority),
+  is_active = 1,
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_api_response_fixture (
+  endpoint_id,
+  scenario_id,
+  fixture_name,
+  request_match_json,
+  response_json,
+  http_status,
+  app_code,
+  priority
+)
+SELECT
+  e.id,
+  s.id,
+  'empty-transaction-list',
+  JSON_OBJECT('scenarioKey', 'demo-empty-user', 'yearMonth', '2026-07'),
+  JSON_OBJECT(
+    'code', 'SUCCESS',
+    'message', '거래내역이 없습니다',
+    'data', JSON_OBJECT('transactions', JSON_ARRAY()),
+    'traceId', '01J3MOCKEMPTYTRANSACTION',
+    'timestamp', '2026-07-31T10:30:00+09:00'
+  ),
+  200,
+  'SUCCESS',
+  20
+FROM mock_api_endpoint e
+JOIN mock_scenario s ON s.scenario_code = 'EMPTY_DATA'
+WHERE e.operation_key = 'transaction_list'
+ON DUPLICATE KEY UPDATE
+  request_match_json = VALUES(request_match_json),
+  response_json = VALUES(response_json),
+  http_status = VALUES(http_status),
+  app_code = VALUES(app_code),
+  priority = VALUES(priority),
+  is_active = 1,
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_api_response_fixture (
+  endpoint_id,
+  scenario_id,
+  fixture_name,
+  request_match_json,
+  response_json,
+  http_status,
+  app_code,
+  priority
+)
+SELECT
+  e.id,
+  s.id,
+  'normal-balance',
+  JSON_OBJECT('scenarioKey', 'demo-normal-user'),
+  JSON_OBJECT(
+    'code', 'SUCCESS',
+    'message', '잔액 조회 성공',
+    'data', JSON_OBJECT(
+      'accountId', 1,
+      'balance', 1244200,
+      'availableAmount', 1244200,
+      'valuationAmount', 1244200,
+      'currency', 'KRW',
+      'snapshotAt', '2026-07-31T10:30:00+09:00'
+    ),
+    'traceId', '01J3MOCKBALANCE',
+    'timestamp', '2026-07-31T10:30:00+09:00'
+  ),
+  200,
+  'SUCCESS',
+  10
+FROM mock_api_endpoint e
+JOIN mock_scenario s ON s.scenario_code = 'NORMAL'
+WHERE e.operation_key = 'codef_balance'
+ON DUPLICATE KEY UPDATE
+  request_match_json = VALUES(request_match_json),
+  response_json = VALUES(response_json),
+  http_status = VALUES(http_status),
+  app_code = VALUES(app_code),
+  priority = VALUES(priority),
+  is_active = 1,
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_api_response_fixture (
+  endpoint_id,
+  scenario_id,
+  fixture_name,
+  request_match_json,
+  response_json,
+  http_status,
+  app_code,
+  priority
+)
+SELECT
+  e.id,
+  s.id,
+  'empty-balance',
+  JSON_OBJECT('scenarioKey', 'demo-empty-user'),
+  JSON_OBJECT(
+    'code', 'SUCCESS',
+    'message', '잔액 정보가 없습니다',
+    'data', JSON_OBJECT(
+      'accountId', NULL,
+      'balance', 0,
+      'availableAmount', 0,
+      'valuationAmount', 0,
+      'currency', 'KRW',
+      'snapshotAt', NULL
+    ),
+    'traceId', '01J3MOCKEMPTYBALANCE',
+    'timestamp', '2026-07-31T10:30:00+09:00'
+  ),
+  200,
+  'SUCCESS',
+  20
+FROM mock_api_endpoint e
+JOIN mock_scenario s ON s.scenario_code = 'EMPTY_DATA'
+WHERE e.operation_key = 'codef_balance'
+ON DUPLICATE KEY UPDATE
+  request_match_json = VALUES(request_match_json),
+  response_json = VALUES(response_json),
+  http_status = VALUES(http_status),
+  app_code = VALUES(app_code),
+  priority = VALUES(priority),
+  is_active = 1,
   updated_at = CURRENT_TIMESTAMP;
