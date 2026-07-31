@@ -194,3 +194,4 @@ documents/
 - `documents/CPR_기능명세서-v8.xlsm`
 - `documents/탕탕_API_연동규격_정의서_v1.0.xlsm`
 - `documents/mock-server.xlsx`
+- `documents/IMPLEMENTATION_GUIDE.md`
