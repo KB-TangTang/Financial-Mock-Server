@@ -217,6 +217,79 @@ CREATE TABLE IF NOT EXISTS mock_codef_balance_snapshot (
     FOREIGN KEY (account_id) REFERENCES mock_codef_account (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS mock_codef_stock_holding (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  account_id BIGINT NOT NULL,
+  stock_code VARCHAR(30) NOT NULL,
+  stock_name VARCHAR(100) NOT NULL,
+  market_country VARCHAR(30) NOT NULL DEFAULT 'KR',
+  currency CHAR(3) NOT NULL DEFAULT 'KRW',
+  quantity DECIMAL(18,6) NOT NULL DEFAULT 0.000000,
+  average_purchase_price DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+  last_price DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+  purchase_amount DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+  market_value DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+  profit_loss_amount DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+  profit_loss_rate DECIMAL(9,4) NOT NULL DEFAULT 0.0000,
+  valuation_at DATETIME NOT NULL,
+  raw_json JSON NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_mock_codef_stock_holding (account_id, stock_code, market_country),
+  KEY idx_mock_codef_stock_holding_account (account_id),
+  KEY idx_mock_codef_stock_holding_stock_code (stock_code),
+  CONSTRAINT fk_mock_codef_stock_holding_account
+    FOREIGN KEY (account_id) REFERENCES mock_codef_account (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS mock_codef_loan (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  account_id BIGINT NOT NULL,
+  loan_no_masked VARCHAR(100) NOT NULL,
+  loan_no_encrypted VARCHAR(255) NULL,
+  loan_name VARCHAR(100) NULL,
+  loan_type VARCHAR(50) NOT NULL,
+  currency CHAR(3) NOT NULL DEFAULT 'KRW',
+  loan_amount DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+  balance DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+  interest_rate DECIMAL(9,4) NULL,
+  start_date DATE NULL,
+  maturity_date DATE NULL,
+  monthly_payment DECIMAL(18,2) NULL,
+  next_payment_date DATE NULL,
+  raw_json JSON NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_mock_codef_loan_account (account_id),
+  KEY idx_mock_codef_loan_maturity_date (maturity_date),
+  CONSTRAINT fk_mock_codef_loan_account
+    FOREIGN KEY (account_id) REFERENCES mock_codef_account (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS mock_codef_pay_money (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  account_id BIGINT NOT NULL,
+  provider_code VARCHAR(50) NOT NULL,
+  provider_name VARCHAR(100) NOT NULL,
+  wallet_id VARCHAR(100) NULL,
+  wallet_name VARCHAR(100) NULL,
+  currency CHAR(3) NOT NULL DEFAULT 'KRW',
+  balance DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+  available_amount DECIMAL(18,2) NULL,
+  point_amount DECIMAL(18,2) NULL,
+  last_synced_at DATETIME NULL,
+  raw_json JSON NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_mock_codef_pay_money_account (account_id),
+  KEY idx_mock_codef_pay_money_provider (provider_code),
+  CONSTRAINT fk_mock_codef_pay_money_account
+    FOREIGN KEY (account_id) REFERENCES mock_codef_account (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 INSERT INTO mock_scenario (
   scenario_code,
   name,
