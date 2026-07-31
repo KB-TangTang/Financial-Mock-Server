@@ -913,6 +913,322 @@ ON DUPLICATE KEY UPDATE
   raw_json = VALUES(raw_json),
   updated_at = CURRENT_TIMESTAMP;
 
+INSERT INTO mock_codef_transaction (
+  account_id,
+  codef_tr_key,
+  transaction_at,
+  merchant_name,
+  amount,
+  direction,
+  balance_after,
+  raw_json
+)
+SELECT
+  a.id,
+  'tr-stock-20260729-001',
+  '2026-07-29 09:15:00',
+  '삼성전자 매수',
+  864000.00,
+  'WITHDRAW',
+  NULL,
+  JSON_OBJECT(
+    'resAccountTrDate', '20260729',
+    'resAccountTrTime', '091500',
+    'resAccountDesc1', '삼성전자 매수',
+    'resAccountOut', '864000',
+    'resStockCode', '005930',
+    'resQuantity', '12'
+  )
+FROM mock_codef_account a
+WHERE a.account_no_masked = '987654******3210'
+ON DUPLICATE KEY UPDATE
+  merchant_name = VALUES(merchant_name),
+  amount = VALUES(amount),
+  direction = VALUES(direction),
+  balance_after = VALUES(balance_after),
+  raw_json = VALUES(raw_json),
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_codef_transaction (
+  account_id,
+  codef_tr_key,
+  transaction_at,
+  merchant_name,
+  amount,
+  direction,
+  balance_after,
+  raw_json
+)
+SELECT
+  a.id,
+  'tr-stock-20260726-001',
+  '2026-07-26 10:02:00',
+  '카카오 매수',
+  384000.00,
+  'WITHDRAW',
+  NULL,
+  JSON_OBJECT(
+    'resAccountTrDate', '20260726',
+    'resAccountTrTime', '100200',
+    'resAccountDesc1', '카카오 매수',
+    'resAccountOut', '384000',
+    'resStockCode', '035720',
+    'resQuantity', '8'
+  )
+FROM mock_codef_account a
+WHERE a.account_no_masked = '987654******3210'
+ON DUPLICATE KEY UPDATE
+  merchant_name = VALUES(merchant_name),
+  amount = VALUES(amount),
+  direction = VALUES(direction),
+  balance_after = VALUES(balance_after),
+  raw_json = VALUES(raw_json),
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_codef_transaction (
+  account_id,
+  codef_tr_key,
+  transaction_at,
+  merchant_name,
+  amount,
+  direction,
+  balance_after,
+  raw_json
+)
+SELECT
+  a.id,
+  'tr-stock-20260720-001',
+  '2026-07-20 16:30:00',
+  '배당금 입금',
+  18500.00,
+  'DEPOSIT',
+  NULL,
+  JSON_OBJECT(
+    'resAccountTrDate', '20260720',
+    'resAccountTrTime', '163000',
+    'resAccountDesc1', '배당금 입금',
+    'resAccountIn', '18500'
+  )
+FROM mock_codef_account a
+WHERE a.account_no_masked = '987654******3210'
+ON DUPLICATE KEY UPDATE
+  merchant_name = VALUES(merchant_name),
+  amount = VALUES(amount),
+  direction = VALUES(direction),
+  balance_after = VALUES(balance_after),
+  raw_json = VALUES(raw_json),
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_codef_transaction (
+  account_id,
+  codef_tr_key,
+  transaction_at,
+  merchant_name,
+  amount,
+  direction,
+  balance_after,
+  raw_json
+)
+SELECT
+  a.id,
+  'tr-pay-20260731-001',
+  '2026-07-31 07:50:00',
+  '페이머니 충전',
+  100000.00,
+  'DEPOSIT',
+  183500.00,
+  JSON_OBJECT(
+    'resAccountTrDate', '20260731',
+    'resAccountTrTime', '075000',
+    'resAccountDesc1', '페이머니 충전',
+    'resAccountIn', '100000',
+    'resAfterTranBalance', '183500'
+  )
+FROM mock_codef_account a
+WHERE a.account_no_masked = 'pay-****-2026'
+ON DUPLICATE KEY UPDATE
+  merchant_name = VALUES(merchant_name),
+  amount = VALUES(amount),
+  direction = VALUES(direction),
+  balance_after = VALUES(balance_after),
+  raw_json = VALUES(raw_json),
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_codef_transaction (
+  account_id,
+  codef_tr_key,
+  transaction_at,
+  merchant_name,
+  amount,
+  direction,
+  balance_after,
+  raw_json
+)
+SELECT
+  a.id,
+  'tr-pay-20260730-001',
+  '2026-07-30 20:14:00',
+  'CU 편의점',
+  6700.00,
+  'WITHDRAW',
+  83500.00,
+  JSON_OBJECT(
+    'resAccountTrDate', '20260730',
+    'resAccountTrTime', '201400',
+    'resAccountDesc1', 'CU 편의점',
+    'resAccountOut', '6700',
+    'resAfterTranBalance', '83500'
+  )
+FROM mock_codef_account a
+WHERE a.account_no_masked = 'pay-****-2026'
+ON DUPLICATE KEY UPDATE
+  merchant_name = VALUES(merchant_name),
+  amount = VALUES(amount),
+  direction = VALUES(direction),
+  balance_after = VALUES(balance_after),
+  raw_json = VALUES(raw_json),
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_codef_transaction (
+  account_id,
+  codef_tr_key,
+  transaction_at,
+  merchant_name,
+  amount,
+  direction,
+  balance_after,
+  raw_json
+)
+SELECT
+  a.id,
+  'tr-pay-20260730-002',
+  '2026-07-30 20:15:00',
+  '포인트 적립',
+  120.00,
+  'DEPOSIT',
+  1240.00,
+  JSON_OBJECT(
+    'resAccountTrDate', '20260730',
+    'resAccountTrTime', '201500',
+    'resAccountDesc1', '포인트 적립',
+    'resPointIn', '120',
+    'resPointBalance', '1240'
+  )
+FROM mock_codef_account a
+WHERE a.account_no_masked = 'pay-****-2026'
+ON DUPLICATE KEY UPDATE
+  merchant_name = VALUES(merchant_name),
+  amount = VALUES(amount),
+  direction = VALUES(direction),
+  balance_after = VALUES(balance_after),
+  raw_json = VALUES(raw_json),
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_codef_transaction (
+  account_id,
+  codef_tr_key,
+  transaction_at,
+  merchant_name,
+  amount,
+  direction,
+  balance_after,
+  raw_json
+)
+SELECT
+  a.id,
+  'tr-loan-20260701-001',
+  '2026-07-01 09:00:00',
+  '대출 실행',
+  20000000.00,
+  'DEPOSIT',
+  20000000.00,
+  JSON_OBJECT(
+    'resAccountTrDate', '20260701',
+    'resAccountTrTime', '090000',
+    'resAccountDesc1', '대출 실행',
+    'resAccountIn', '20000000',
+    'resLoanBalance', '20000000'
+  )
+FROM mock_codef_account a
+WHERE a.account_no_masked = '555555******1111'
+ON DUPLICATE KEY UPDATE
+  merchant_name = VALUES(merchant_name),
+  amount = VALUES(amount),
+  direction = VALUES(direction),
+  balance_after = VALUES(balance_after),
+  raw_json = VALUES(raw_json),
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_codef_transaction (
+  account_id,
+  codef_tr_key,
+  transaction_at,
+  merchant_name,
+  amount,
+  direction,
+  balance_after,
+  raw_json
+)
+SELECT
+  a.id,
+  'tr-loan-20260715-001',
+  '2026-07-15 09:00:00',
+  '원리금 상환',
+  615000.00,
+  'WITHDRAW',
+  14200000.00,
+  JSON_OBJECT(
+    'resAccountTrDate', '20260715',
+    'resAccountTrTime', '090000',
+    'resAccountDesc1', '원리금 상환',
+    'resAccountOut', '615000',
+    'resLoanBalance', '14200000'
+  )
+FROM mock_codef_account a
+WHERE a.account_no_masked = '555555******1111'
+ON DUPLICATE KEY UPDATE
+  merchant_name = VALUES(merchant_name),
+  amount = VALUES(amount),
+  direction = VALUES(direction),
+  balance_after = VALUES(balance_after),
+  raw_json = VALUES(raw_json),
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_codef_transaction (
+  account_id,
+  codef_tr_key,
+  transaction_at,
+  merchant_name,
+  amount,
+  direction,
+  balance_after,
+  raw_json
+)
+SELECT
+  a.id,
+  'tr-loan-20260715-002',
+  '2026-07-15 09:01:00',
+  '이자 납입',
+  60500.00,
+  'WITHDRAW',
+  14200000.00,
+  JSON_OBJECT(
+    'resAccountTrDate', '20260715',
+    'resAccountTrTime', '090100',
+    'resAccountDesc1', '이자 납입',
+    'resAccountOut', '60500',
+    'resLoanBalance', '14200000'
+  )
+FROM mock_codef_account a
+WHERE a.account_no_masked = '555555******1111'
+ON DUPLICATE KEY UPDATE
+  merchant_name = VALUES(merchant_name),
+  amount = VALUES(amount),
+  direction = VALUES(direction),
+  balance_after = VALUES(balance_after),
+  raw_json = VALUES(raw_json),
+  updated_at = CURRENT_TIMESTAMP;
+
 INSERT INTO mock_api_response_fixture (
   endpoint_id,
   scenario_id,
@@ -955,6 +1271,110 @@ SELECT
 FROM mock_api_endpoint e
 JOIN mock_scenario s ON s.scenario_code = 'NORMAL'
 WHERE e.operation_key = 'asset_account_list'
+ON DUPLICATE KEY UPDATE
+  request_match_json = VALUES(request_match_json),
+  response_json = VALUES(response_json),
+  http_status = VALUES(http_status),
+  app_code = VALUES(app_code),
+  priority = VALUES(priority),
+  is_active = 1,
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_api_response_fixture (
+  endpoint_id,
+  scenario_id,
+  fixture_name,
+  request_match_json,
+  response_json,
+  http_status,
+  app_code,
+  priority
+)
+SELECT
+  e.id,
+  s.id,
+  'normal-transaction-list',
+  JSON_OBJECT('scenarioKey', 'demo-normal-user', 'yearMonth', '2026-07'),
+  JSON_OBJECT(
+    'code', 'SUCCESS',
+    'message', '거래내역 조회 성공',
+    'data', JSON_OBJECT(
+      'transactions', JSON_ARRAY(
+        JSON_OBJECT('transactionId', 1, 'accountType', 'DEPOSIT', 'accountName', 'KB Star 입출금통장', 'transactionAt', '2026-07-31T08:12:00+09:00', 'merchantName', '스타벅스 강남점', 'category', '카페', 'amount', 5800, 'direction', 'WITHDRAW', 'balanceAfter', 1244200),
+        JSON_OBJECT('transactionId', 2, 'accountType', 'PAY_MONEY', 'accountName', 'KB Pay 머니', 'transactionAt', '2026-07-31T07:50:00+09:00', 'merchantName', '페이머니 충전', 'category', '충전', 'amount', 100000, 'direction', 'DEPOSIT', 'balanceAfter', 183500),
+        JSON_OBJECT('transactionId', 3, 'accountType', 'DEPOSIT', 'accountName', 'KB Star 입출금통장', 'transactionAt', '2026-07-30T12:35:00+09:00', 'merchantName', '쿠팡', 'category', '쇼핑', 'amount', 32900, 'direction', 'WITHDRAW', 'balanceAfter', 1250000),
+        JSON_OBJECT('transactionId', 4, 'accountType', 'PAY_MONEY', 'accountName', 'KB Pay 머니', 'transactionAt', '2026-07-30T20:14:00+09:00', 'merchantName', 'CU 편의점', 'category', '편의점', 'amount', 6700, 'direction', 'WITHDRAW', 'balanceAfter', 83500),
+        JSON_OBJECT('transactionId', 5, 'accountType', 'PAY_MONEY', 'accountName', 'KB Pay 머니', 'transactionAt', '2026-07-30T20:15:00+09:00', 'merchantName', '포인트 적립', 'category', '포인트', 'amount', 120, 'direction', 'DEPOSIT', 'balanceAfter', 1240),
+        JSON_OBJECT('transactionId', 6, 'accountType', 'STOCK', 'accountName', 'KB증권 종합위탁', 'transactionAt', '2026-07-29T09:15:00+09:00', 'merchantName', '삼성전자 매수', 'category', '주식매수', 'amount', 864000, 'direction', 'WITHDRAW', 'balanceAfter', NULL),
+        JSON_OBJECT('transactionId', 7, 'accountType', 'STOCK', 'accountName', 'KB증권 종합위탁', 'transactionAt', '2026-07-26T10:02:00+09:00', 'merchantName', '카카오 매수', 'category', '주식매수', 'amount', 384000, 'direction', 'WITHDRAW', 'balanceAfter', NULL),
+        JSON_OBJECT('transactionId', 8, 'accountType', 'DEPOSIT', 'accountName', 'KB Star 입출금통장', 'transactionAt', '2026-07-25T09:00:00+09:00', 'merchantName', '급여', 'category', '급여', 'amount', 2500000, 'direction', 'DEPOSIT', 'balanceAfter', 1282900),
+        JSON_OBJECT('transactionId', 9, 'accountType', 'STOCK', 'accountName', 'KB증권 종합위탁', 'transactionAt', '2026-07-20T16:30:00+09:00', 'merchantName', '배당금 입금', 'category', '배당', 'amount', 18500, 'direction', 'DEPOSIT', 'balanceAfter', NULL),
+        JSON_OBJECT('transactionId', 10, 'accountType', 'LOAN', 'accountName', 'KB 직장인 신용대출', 'transactionAt', '2026-07-15T09:00:00+09:00', 'merchantName', '원리금 상환', 'category', '대출상환', 'amount', 615000, 'direction', 'WITHDRAW', 'balanceAfter', 14200000),
+        JSON_OBJECT('transactionId', 11, 'accountType', 'LOAN', 'accountName', 'KB 직장인 신용대출', 'transactionAt', '2026-07-15T09:01:00+09:00', 'merchantName', '이자 납입', 'category', '이자', 'amount', 60500, 'direction', 'WITHDRAW', 'balanceAfter', 14200000),
+        JSON_OBJECT('transactionId', 12, 'accountType', 'LOAN', 'accountName', 'KB 직장인 신용대출', 'transactionAt', '2026-07-01T09:00:00+09:00', 'merchantName', '대출 실행', 'category', '대출실행', 'amount', 20000000, 'direction', 'DEPOSIT', 'balanceAfter', 20000000)
+      )
+    ),
+    'traceId', '01J3MOCKTRANSACTION',
+    'timestamp', '2026-07-31T10:30:00+09:00'
+  ),
+  200,
+  'SUCCESS',
+  5
+FROM mock_api_endpoint e
+JOIN mock_scenario s ON s.scenario_code = 'NORMAL'
+WHERE e.operation_key = 'transaction_list'
+ON DUPLICATE KEY UPDATE
+  request_match_json = VALUES(request_match_json),
+  response_json = VALUES(response_json),
+  http_status = VALUES(http_status),
+  app_code = VALUES(app_code),
+  priority = VALUES(priority),
+  is_active = 1,
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_api_response_fixture (
+  endpoint_id,
+  scenario_id,
+  fixture_name,
+  request_match_json,
+  response_json,
+  http_status,
+  app_code,
+  priority
+)
+SELECT
+  e.id,
+  s.id,
+  'normal-transaction-list',
+  JSON_OBJECT('scenarioKey', 'demo-normal-user', 'yearMonth', '2026-07'),
+  JSON_OBJECT(
+    'code', 'SUCCESS',
+    'message', '거래내역 조회 성공',
+    'data', JSON_OBJECT(
+      'transactions', JSON_ARRAY(
+        JSON_OBJECT('transactionId', 1, 'accountType', 'DEPOSIT', 'accountName', 'KB Star 입출금통장', 'transactionAt', '2026-07-31T08:12:00+09:00', 'merchantName', '스타벅스 강남점', 'category', '카페', 'amount', 5800, 'direction', 'WITHDRAW', 'balanceAfter', 1244200),
+        JSON_OBJECT('transactionId', 2, 'accountType', 'PAY_MONEY', 'accountName', 'KB Pay 머니', 'transactionAt', '2026-07-31T07:50:00+09:00', 'merchantName', '페이머니 충전', 'category', '충전', 'amount', 100000, 'direction', 'DEPOSIT', 'balanceAfter', 183500),
+        JSON_OBJECT('transactionId', 3, 'accountType', 'DEPOSIT', 'accountName', 'KB Star 입출금통장', 'transactionAt', '2026-07-30T12:35:00+09:00', 'merchantName', '쿠팡', 'category', '쇼핑', 'amount', 32900, 'direction', 'WITHDRAW', 'balanceAfter', 1250000),
+        JSON_OBJECT('transactionId', 4, 'accountType', 'PAY_MONEY', 'accountName', 'KB Pay 머니', 'transactionAt', '2026-07-30T20:14:00+09:00', 'merchantName', 'CU 편의점', 'category', '편의점', 'amount', 6700, 'direction', 'WITHDRAW', 'balanceAfter', 83500),
+        JSON_OBJECT('transactionId', 5, 'accountType', 'PAY_MONEY', 'accountName', 'KB Pay 머니', 'transactionAt', '2026-07-30T20:15:00+09:00', 'merchantName', '포인트 적립', 'category', '포인트', 'amount', 120, 'direction', 'DEPOSIT', 'balanceAfter', 1240),
+        JSON_OBJECT('transactionId', 6, 'accountType', 'STOCK', 'accountName', 'KB증권 종합위탁', 'transactionAt', '2026-07-29T09:15:00+09:00', 'merchantName', '삼성전자 매수', 'category', '주식매수', 'amount', 864000, 'direction', 'WITHDRAW', 'balanceAfter', NULL),
+        JSON_OBJECT('transactionId', 7, 'accountType', 'STOCK', 'accountName', 'KB증권 종합위탁', 'transactionAt', '2026-07-26T10:02:00+09:00', 'merchantName', '카카오 매수', 'category', '주식매수', 'amount', 384000, 'direction', 'WITHDRAW', 'balanceAfter', NULL),
+        JSON_OBJECT('transactionId', 8, 'accountType', 'DEPOSIT', 'accountName', 'KB Star 입출금통장', 'transactionAt', '2026-07-25T09:00:00+09:00', 'merchantName', '급여', 'category', '급여', 'amount', 2500000, 'direction', 'DEPOSIT', 'balanceAfter', 1282900),
+        JSON_OBJECT('transactionId', 9, 'accountType', 'STOCK', 'accountName', 'KB증권 종합위탁', 'transactionAt', '2026-07-20T16:30:00+09:00', 'merchantName', '배당금 입금', 'category', '배당', 'amount', 18500, 'direction', 'DEPOSIT', 'balanceAfter', NULL),
+        JSON_OBJECT('transactionId', 10, 'accountType', 'LOAN', 'accountName', 'KB 직장인 신용대출', 'transactionAt', '2026-07-15T09:00:00+09:00', 'merchantName', '원리금 상환', 'category', '대출상환', 'amount', 615000, 'direction', 'WITHDRAW', 'balanceAfter', 14200000),
+        JSON_OBJECT('transactionId', 11, 'accountType', 'LOAN', 'accountName', 'KB 직장인 신용대출', 'transactionAt', '2026-07-15T09:01:00+09:00', 'merchantName', '이자 납입', 'category', '이자', 'amount', 60500, 'direction', 'WITHDRAW', 'balanceAfter', 14200000),
+        JSON_OBJECT('transactionId', 12, 'accountType', 'LOAN', 'accountName', 'KB 직장인 신용대출', 'transactionAt', '2026-07-01T09:00:00+09:00', 'merchantName', '대출 실행', 'category', '대출실행', 'amount', 20000000, 'direction', 'DEPOSIT', 'balanceAfter', 20000000)
+      )
+    ),
+    'traceId', '01J3MOCKTRANSACTION',
+    'timestamp', '2026-07-31T10:30:00+09:00'
+  ),
+  200,
+  'SUCCESS',
+  5
+FROM mock_api_endpoint e
+JOIN mock_scenario s ON s.scenario_code = 'NORMAL'
+WHERE e.operation_key = 'transaction_list'
 ON DUPLICATE KEY UPDATE
   request_match_json = VALUES(request_match_json),
   response_json = VALUES(response_json),
@@ -1280,6 +1700,58 @@ SELECT
   200,
   'SUCCESS',
   10
+FROM mock_api_endpoint e
+JOIN mock_scenario s ON s.scenario_code = 'NORMAL'
+WHERE e.operation_key = 'transaction_list'
+ON DUPLICATE KEY UPDATE
+  request_match_json = VALUES(request_match_json),
+  response_json = VALUES(response_json),
+  http_status = VALUES(http_status),
+  app_code = VALUES(app_code),
+  priority = VALUES(priority),
+  is_active = 1,
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_api_response_fixture (
+  endpoint_id,
+  scenario_id,
+  fixture_name,
+  request_match_json,
+  response_json,
+  http_status,
+  app_code,
+  priority
+)
+SELECT
+  e.id,
+  s.id,
+  'normal-transaction-list',
+  JSON_OBJECT('scenarioKey', 'demo-normal-user', 'yearMonth', '2026-07'),
+  JSON_OBJECT(
+    'code', 'SUCCESS',
+    'message', '거래내역 조회 성공',
+    'data', JSON_OBJECT(
+      'transactions', JSON_ARRAY(
+        JSON_OBJECT('transactionId', 1, 'accountType', 'DEPOSIT', 'accountName', 'KB Star 입출금통장', 'transactionAt', '2026-07-31T08:12:00+09:00', 'merchantName', '스타벅스 강남점', 'category', '카페', 'amount', 5800, 'direction', 'WITHDRAW', 'balanceAfter', 1244200),
+        JSON_OBJECT('transactionId', 2, 'accountType', 'PAY_MONEY', 'accountName', 'KB Pay 머니', 'transactionAt', '2026-07-31T07:50:00+09:00', 'merchantName', '페이머니 충전', 'category', '충전', 'amount', 100000, 'direction', 'DEPOSIT', 'balanceAfter', 183500),
+        JSON_OBJECT('transactionId', 3, 'accountType', 'DEPOSIT', 'accountName', 'KB Star 입출금통장', 'transactionAt', '2026-07-30T12:35:00+09:00', 'merchantName', '쿠팡', 'category', '쇼핑', 'amount', 32900, 'direction', 'WITHDRAW', 'balanceAfter', 1250000),
+        JSON_OBJECT('transactionId', 4, 'accountType', 'PAY_MONEY', 'accountName', 'KB Pay 머니', 'transactionAt', '2026-07-30T20:14:00+09:00', 'merchantName', 'CU 편의점', 'category', '편의점', 'amount', 6700, 'direction', 'WITHDRAW', 'balanceAfter', 83500),
+        JSON_OBJECT('transactionId', 5, 'accountType', 'PAY_MONEY', 'accountName', 'KB Pay 머니', 'transactionAt', '2026-07-30T20:15:00+09:00', 'merchantName', '포인트 적립', 'category', '포인트', 'amount', 120, 'direction', 'DEPOSIT', 'balanceAfter', 1240),
+        JSON_OBJECT('transactionId', 6, 'accountType', 'STOCK', 'accountName', 'KB증권 종합위탁', 'transactionAt', '2026-07-29T09:15:00+09:00', 'merchantName', '삼성전자 매수', 'category', '주식매수', 'amount', 864000, 'direction', 'WITHDRAW', 'balanceAfter', NULL),
+        JSON_OBJECT('transactionId', 7, 'accountType', 'STOCK', 'accountName', 'KB증권 종합위탁', 'transactionAt', '2026-07-26T10:02:00+09:00', 'merchantName', '카카오 매수', 'category', '주식매수', 'amount', 384000, 'direction', 'WITHDRAW', 'balanceAfter', NULL),
+        JSON_OBJECT('transactionId', 8, 'accountType', 'DEPOSIT', 'accountName', 'KB Star 입출금통장', 'transactionAt', '2026-07-25T09:00:00+09:00', 'merchantName', '급여', 'category', '급여', 'amount', 2500000, 'direction', 'DEPOSIT', 'balanceAfter', 1282900),
+        JSON_OBJECT('transactionId', 9, 'accountType', 'STOCK', 'accountName', 'KB증권 종합위탁', 'transactionAt', '2026-07-20T16:30:00+09:00', 'merchantName', '배당금 입금', 'category', '배당', 'amount', 18500, 'direction', 'DEPOSIT', 'balanceAfter', NULL),
+        JSON_OBJECT('transactionId', 10, 'accountType', 'LOAN', 'accountName', 'KB 직장인 신용대출', 'transactionAt', '2026-07-15T09:00:00+09:00', 'merchantName', '원리금 상환', 'category', '대출상환', 'amount', 615000, 'direction', 'WITHDRAW', 'balanceAfter', 14200000),
+        JSON_OBJECT('transactionId', 11, 'accountType', 'LOAN', 'accountName', 'KB 직장인 신용대출', 'transactionAt', '2026-07-15T09:01:00+09:00', 'merchantName', '이자 납입', 'category', '이자', 'amount', 60500, 'direction', 'WITHDRAW', 'balanceAfter', 14200000),
+        JSON_OBJECT('transactionId', 12, 'accountType', 'LOAN', 'accountName', 'KB 직장인 신용대출', 'transactionAt', '2026-07-01T09:00:00+09:00', 'merchantName', '대출 실행', 'category', '대출실행', 'amount', 20000000, 'direction', 'DEPOSIT', 'balanceAfter', 20000000)
+      )
+    ),
+    'traceId', '01J3MOCKTRANSACTION',
+    'timestamp', '2026-07-31T10:30:00+09:00'
+  ),
+  200,
+  'SUCCESS',
+  5
 FROM mock_api_endpoint e
 JOIN mock_scenario s ON s.scenario_code = 'NORMAL'
 WHERE e.operation_key = 'transaction_list'
