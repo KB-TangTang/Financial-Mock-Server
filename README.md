@@ -16,7 +16,6 @@ CODEF API 호출 제한과 외부 연동 불안정성에 영향을 받지 않고
 
 목 서버의 데이터는 크게 두 영역으로 나눕니다.
 
-![Financial Mock Server ERD](documents/financial-mock-erd.svg)
 
 ```mermaid
 erDiagram
