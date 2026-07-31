@@ -596,6 +596,323 @@ ON DUPLICATE KEY UPDATE
   raw_json = VALUES(raw_json),
   updated_at = CURRENT_TIMESTAMP;
 
+INSERT INTO mock_codef_account (
+  connection_id,
+  institution_id,
+  account_type,
+  account_no_masked,
+  account_no_encrypted,
+  account_name,
+  currency,
+  status,
+  opened_at,
+  raw_json
+)
+SELECT
+  c.id,
+  i.id,
+  'STOCK',
+  '987654******3210',
+  'mock-encrypted-stock-account-001',
+  'KB증권 종합위탁',
+  'KRW',
+  'ACTIVE',
+  '2024-03-20',
+  JSON_OBJECT(
+    'resAccount', '987654******3210',
+    'resAccountName', 'KB증권 종합위탁',
+    'resAccountType', 'STOCK',
+    'resAccountCurrency', 'KRW'
+  )
+FROM mock_codef_connection c
+JOIN mock_codef_institution i ON i.id = c.institution_id
+WHERE c.connected_id = 'conn-demo-normal-kb'
+ON DUPLICATE KEY UPDATE
+  account_name = VALUES(account_name),
+  currency = VALUES(currency),
+  status = VALUES(status),
+  raw_json = VALUES(raw_json),
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_codef_account (
+  connection_id,
+  institution_id,
+  account_type,
+  account_no_masked,
+  account_no_encrypted,
+  account_name,
+  currency,
+  status,
+  opened_at,
+  raw_json
+)
+SELECT
+  c.id,
+  i.id,
+  'LOAN',
+  '555555******1111',
+  'mock-encrypted-loan-account-001',
+  'KB 직장인 신용대출',
+  'KRW',
+  'ACTIVE',
+  '2025-02-01',
+  JSON_OBJECT(
+    'resLoanNo', '555555******1111',
+    'resLoanName', 'KB 직장인 신용대출',
+    'resLoanType', 'CREDIT_LOAN',
+    'resCurrency', 'KRW'
+  )
+FROM mock_codef_connection c
+JOIN mock_codef_institution i ON i.id = c.institution_id
+WHERE c.connected_id = 'conn-demo-normal-kb'
+ON DUPLICATE KEY UPDATE
+  account_name = VALUES(account_name),
+  currency = VALUES(currency),
+  status = VALUES(status),
+  raw_json = VALUES(raw_json),
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_codef_account (
+  connection_id,
+  institution_id,
+  account_type,
+  account_no_masked,
+  account_no_encrypted,
+  account_name,
+  currency,
+  status,
+  opened_at,
+  raw_json
+)
+SELECT
+  c.id,
+  i.id,
+  'PAY_MONEY',
+  'pay-****-2026',
+  'mock-encrypted-pay-money-001',
+  'KB Pay 머니',
+  'KRW',
+  'ACTIVE',
+  '2026-01-10',
+  JSON_OBJECT(
+    'resWalletId', 'pay-****-2026',
+    'resWalletName', 'KB Pay 머니',
+    'resProviderName', 'KB Pay',
+    'resCurrency', 'KRW'
+  )
+FROM mock_codef_connection c
+JOIN mock_codef_institution i ON i.id = c.institution_id
+WHERE c.connected_id = 'conn-demo-normal-kb'
+ON DUPLICATE KEY UPDATE
+  account_name = VALUES(account_name),
+  currency = VALUES(currency),
+  status = VALUES(status),
+  raw_json = VALUES(raw_json),
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_codef_stock_holding (
+  account_id,
+  stock_code,
+  stock_name,
+  market_country,
+  currency,
+  quantity,
+  average_purchase_price,
+  last_price,
+  purchase_amount,
+  market_value,
+  profit_loss_amount,
+  profit_loss_rate,
+  valuation_at,
+  raw_json
+)
+SELECT
+  a.id,
+  '005930',
+  '삼성전자',
+  'KR',
+  'KRW',
+  12.000000,
+  72000.00,
+  78500.00,
+  864000.00,
+  942000.00,
+  78000.00,
+  9.0278,
+  '2026-07-31 10:30:00',
+  JSON_OBJECT(
+    'resItemCode', '005930',
+    'resItemName', '삼성전자',
+    'resQuantity', '12',
+    'resAveragePurchasePrice', '72000',
+    'resCurrentPrice', '78500',
+    'resValuationAmount', '942000',
+    'resProfitLoss', '78000'
+  )
+FROM mock_codef_account a
+WHERE a.account_no_masked = '987654******3210'
+ON DUPLICATE KEY UPDATE
+  stock_name = VALUES(stock_name),
+  quantity = VALUES(quantity),
+  average_purchase_price = VALUES(average_purchase_price),
+  last_price = VALUES(last_price),
+  purchase_amount = VALUES(purchase_amount),
+  market_value = VALUES(market_value),
+  profit_loss_amount = VALUES(profit_loss_amount),
+  profit_loss_rate = VALUES(profit_loss_rate),
+  valuation_at = VALUES(valuation_at),
+  raw_json = VALUES(raw_json),
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_codef_stock_holding (
+  account_id,
+  stock_code,
+  stock_name,
+  market_country,
+  currency,
+  quantity,
+  average_purchase_price,
+  last_price,
+  purchase_amount,
+  market_value,
+  profit_loss_amount,
+  profit_loss_rate,
+  valuation_at,
+  raw_json
+)
+SELECT
+  a.id,
+  '035720',
+  '카카오',
+  'KR',
+  'KRW',
+  8.000000,
+  48000.00,
+  45200.00,
+  384000.00,
+  361600.00,
+  -22400.00,
+  -5.8333,
+  '2026-07-31 10:30:00',
+  JSON_OBJECT(
+    'resItemCode', '035720',
+    'resItemName', '카카오',
+    'resQuantity', '8',
+    'resAveragePurchasePrice', '48000',
+    'resCurrentPrice', '45200',
+    'resValuationAmount', '361600',
+    'resProfitLoss', '-22400'
+  )
+FROM mock_codef_account a
+WHERE a.account_no_masked = '987654******3210'
+ON DUPLICATE KEY UPDATE
+  stock_name = VALUES(stock_name),
+  quantity = VALUES(quantity),
+  average_purchase_price = VALUES(average_purchase_price),
+  last_price = VALUES(last_price),
+  purchase_amount = VALUES(purchase_amount),
+  market_value = VALUES(market_value),
+  profit_loss_amount = VALUES(profit_loss_amount),
+  profit_loss_rate = VALUES(profit_loss_rate),
+  valuation_at = VALUES(valuation_at),
+  raw_json = VALUES(raw_json),
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_codef_loan (
+  account_id,
+  loan_no_masked,
+  loan_no_encrypted,
+  loan_name,
+  loan_type,
+  currency,
+  loan_amount,
+  balance,
+  interest_rate,
+  start_date,
+  maturity_date,
+  monthly_payment,
+  next_payment_date,
+  raw_json
+)
+SELECT
+  a.id,
+  '555555******1111',
+  'mock-encrypted-loan-no-001',
+  'KB 직장인 신용대출',
+  'CREDIT_LOAN',
+  'KRW',
+  20000000.00,
+  14200000.00,
+  5.1200,
+  '2025-02-01',
+  '2028-02-01',
+  615000.00,
+  '2026-08-01',
+  JSON_OBJECT(
+    'resLoanName', 'KB 직장인 신용대출',
+    'resLoanType', 'CREDIT_LOAN',
+    'resLoanAmount', '20000000',
+    'resLoanBalance', '14200000',
+    'resInterestRate', '5.12',
+    'resMaturityDate', '20280201'
+  )
+FROM mock_codef_account a
+WHERE a.account_no_masked = '555555******1111'
+ON DUPLICATE KEY UPDATE
+  loan_name = VALUES(loan_name),
+  loan_type = VALUES(loan_type),
+  loan_amount = VALUES(loan_amount),
+  balance = VALUES(balance),
+  interest_rate = VALUES(interest_rate),
+  maturity_date = VALUES(maturity_date),
+  monthly_payment = VALUES(monthly_payment),
+  next_payment_date = VALUES(next_payment_date),
+  raw_json = VALUES(raw_json),
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_codef_pay_money (
+  account_id,
+  provider_code,
+  provider_name,
+  wallet_id,
+  wallet_name,
+  currency,
+  balance,
+  available_amount,
+  point_amount,
+  last_synced_at,
+  raw_json
+)
+SELECT
+  a.id,
+  'KB_PAY',
+  'KB Pay',
+  'pay-2026-demo',
+  'KB Pay 머니',
+  'KRW',
+  83500.00,
+  83500.00,
+  1240.00,
+  '2026-07-31 10:30:00',
+  JSON_OBJECT(
+    'resProviderName', 'KB Pay',
+    'resWalletName', 'KB Pay 머니',
+    'resBalance', '83500',
+    'resAvailableAmount', '83500',
+    'resPointAmount', '1240'
+  )
+FROM mock_codef_account a
+WHERE a.account_no_masked = 'pay-****-2026'
+ON DUPLICATE KEY UPDATE
+  provider_name = VALUES(provider_name),
+  wallet_name = VALUES(wallet_name),
+  balance = VALUES(balance),
+  available_amount = VALUES(available_amount),
+  point_amount = VALUES(point_amount),
+  last_synced_at = VALUES(last_synced_at),
+  raw_json = VALUES(raw_json),
+  updated_at = CURRENT_TIMESTAMP;
+
 INSERT INTO mock_api_response_fixture (
   endpoint_id,
   scenario_id,
@@ -638,6 +955,254 @@ SELECT
 FROM mock_api_endpoint e
 JOIN mock_scenario s ON s.scenario_code = 'NORMAL'
 WHERE e.operation_key = 'asset_account_list'
+ON DUPLICATE KEY UPDATE
+  request_match_json = VALUES(request_match_json),
+  response_json = VALUES(response_json),
+  http_status = VALUES(http_status),
+  app_code = VALUES(app_code),
+  priority = VALUES(priority),
+  is_active = 1,
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_api_response_fixture (
+  endpoint_id,
+  scenario_id,
+  fixture_name,
+  request_match_json,
+  response_json,
+  http_status,
+  app_code,
+  priority
+)
+SELECT
+  e.id,
+  s.id,
+  'normal-stock-list',
+  JSON_OBJECT('scenarioKey', 'demo-normal-user'),
+  JSON_OBJECT(
+    'code', 'SUCCESS',
+    'message', '주식 자산 조회 성공',
+    'data', JSON_OBJECT(
+      'accountId', 2,
+      'accountName', 'KB증권 종합위탁',
+      'currency', 'KRW',
+      'totalPurchaseAmount', 1248000,
+      'totalMarketValue', 1303600,
+      'totalProfitLossAmount', 55600,
+      'totalProfitLossRate', 4.4551,
+      'holdings', JSON_ARRAY(
+        JSON_OBJECT('stockCode', '005930', 'stockName', '삼성전자', 'marketCountry', 'KR', 'currency', 'KRW', 'quantity', 12, 'averagePurchasePrice', 72000, 'lastPrice', 78500, 'purchaseAmount', 864000, 'marketValue', 942000, 'profitLossAmount', 78000, 'profitLossRate', 9.0278),
+        JSON_OBJECT('stockCode', '035720', 'stockName', '카카오', 'marketCountry', 'KR', 'currency', 'KRW', 'quantity', 8, 'averagePurchasePrice', 48000, 'lastPrice', 45200, 'purchaseAmount', 384000, 'marketValue', 361600, 'profitLossAmount', -22400, 'profitLossRate', -5.8333)
+      ),
+      'lastSyncAt', '2026-07-31T10:30:00+09:00'
+    ),
+    'traceId', '01J3MOCKSTOCKS',
+    'timestamp', '2026-07-31T10:30:00+09:00'
+  ),
+  200,
+  'SUCCESS',
+  10
+FROM mock_api_endpoint e
+JOIN mock_scenario s ON s.scenario_code = 'NORMAL'
+WHERE e.operation_key = 'asset_stock_list'
+ON DUPLICATE KEY UPDATE
+  request_match_json = VALUES(request_match_json),
+  response_json = VALUES(response_json),
+  http_status = VALUES(http_status),
+  app_code = VALUES(app_code),
+  priority = VALUES(priority),
+  is_active = 1,
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_api_response_fixture (
+  endpoint_id,
+  scenario_id,
+  fixture_name,
+  request_match_json,
+  response_json,
+  http_status,
+  app_code,
+  priority
+)
+SELECT
+  e.id,
+  s.id,
+  'empty-stock-list',
+  JSON_OBJECT('scenarioKey', 'demo-empty-user'),
+  JSON_OBJECT(
+    'code', 'SUCCESS',
+    'message', '보유 주식이 없습니다',
+    'data', JSON_OBJECT('holdings', JSON_ARRAY(), 'totalPurchaseAmount', 0, 'totalMarketValue', 0, 'totalProfitLossAmount', 0, 'totalProfitLossRate', 0),
+    'traceId', '01J3MOCKEMPTYSTOCKS',
+    'timestamp', '2026-07-31T10:30:00+09:00'
+  ),
+  200,
+  'SUCCESS',
+  20
+FROM mock_api_endpoint e
+JOIN mock_scenario s ON s.scenario_code = 'EMPTY_DATA'
+WHERE e.operation_key = 'asset_stock_list'
+ON DUPLICATE KEY UPDATE
+  request_match_json = VALUES(request_match_json),
+  response_json = VALUES(response_json),
+  http_status = VALUES(http_status),
+  app_code = VALUES(app_code),
+  priority = VALUES(priority),
+  is_active = 1,
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_api_response_fixture (
+  endpoint_id,
+  scenario_id,
+  fixture_name,
+  request_match_json,
+  response_json,
+  http_status,
+  app_code,
+  priority
+)
+SELECT
+  e.id,
+  s.id,
+  'normal-loan-list',
+  JSON_OBJECT('scenarioKey', 'demo-normal-user'),
+  JSON_OBJECT(
+    'code', 'SUCCESS',
+    'message', '대출 자산 조회 성공',
+    'data', JSON_OBJECT(
+      'loans', JSON_ARRAY(
+        JSON_OBJECT('loanId', 1, 'bankName', '국민은행', 'loanName', 'KB 직장인 신용대출', 'loanType', 'CREDIT_LOAN', 'currency', 'KRW', 'loanAmount', 20000000, 'balance', 14200000, 'interestRate', 5.12, 'startDate', '2025-02-01', 'maturityDate', '2028-02-01', 'monthlyPayment', 615000, 'nextPaymentDate', '2026-08-01')
+      ),
+      'totalLoanAmount', 20000000,
+      'totalBalance', 14200000,
+      'lastSyncAt', '2026-07-31T10:30:00+09:00'
+    ),
+    'traceId', '01J3MOCKLOANS',
+    'timestamp', '2026-07-31T10:30:00+09:00'
+  ),
+  200,
+  'SUCCESS',
+  10
+FROM mock_api_endpoint e
+JOIN mock_scenario s ON s.scenario_code = 'NORMAL'
+WHERE e.operation_key = 'asset_loan_list'
+ON DUPLICATE KEY UPDATE
+  request_match_json = VALUES(request_match_json),
+  response_json = VALUES(response_json),
+  http_status = VALUES(http_status),
+  app_code = VALUES(app_code),
+  priority = VALUES(priority),
+  is_active = 1,
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_api_response_fixture (
+  endpoint_id,
+  scenario_id,
+  fixture_name,
+  request_match_json,
+  response_json,
+  http_status,
+  app_code,
+  priority
+)
+SELECT
+  e.id,
+  s.id,
+  'empty-loan-list',
+  JSON_OBJECT('scenarioKey', 'demo-empty-user'),
+  JSON_OBJECT(
+    'code', 'SUCCESS',
+    'message', '대출 정보가 없습니다',
+    'data', JSON_OBJECT('loans', JSON_ARRAY(), 'totalLoanAmount', 0, 'totalBalance', 0),
+    'traceId', '01J3MOCKEMPTYLOANS',
+    'timestamp', '2026-07-31T10:30:00+09:00'
+  ),
+  200,
+  'SUCCESS',
+  20
+FROM mock_api_endpoint e
+JOIN mock_scenario s ON s.scenario_code = 'EMPTY_DATA'
+WHERE e.operation_key = 'asset_loan_list'
+ON DUPLICATE KEY UPDATE
+  request_match_json = VALUES(request_match_json),
+  response_json = VALUES(response_json),
+  http_status = VALUES(http_status),
+  app_code = VALUES(app_code),
+  priority = VALUES(priority),
+  is_active = 1,
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_api_response_fixture (
+  endpoint_id,
+  scenario_id,
+  fixture_name,
+  request_match_json,
+  response_json,
+  http_status,
+  app_code,
+  priority
+)
+SELECT
+  e.id,
+  s.id,
+  'normal-pay-money-list',
+  JSON_OBJECT('scenarioKey', 'demo-normal-user'),
+  JSON_OBJECT(
+    'code', 'SUCCESS',
+    'message', '페이머니 조회 성공',
+    'data', JSON_OBJECT(
+      'payMoney', JSON_ARRAY(
+        JSON_OBJECT('payMoneyId', 1, 'providerCode', 'KB_PAY', 'providerName', 'KB Pay', 'walletName', 'KB Pay 머니', 'currency', 'KRW', 'balance', 83500, 'availableAmount', 83500, 'pointAmount', 1240, 'lastSyncAt', '2026-07-31T10:30:00+09:00')
+      ),
+      'totalBalance', 83500,
+      'totalPointAmount', 1240
+    ),
+    'traceId', '01J3MOCKPAYMONEY',
+    'timestamp', '2026-07-31T10:30:00+09:00'
+  ),
+  200,
+  'SUCCESS',
+  10
+FROM mock_api_endpoint e
+JOIN mock_scenario s ON s.scenario_code = 'NORMAL'
+WHERE e.operation_key = 'asset_pay_money_list'
+ON DUPLICATE KEY UPDATE
+  request_match_json = VALUES(request_match_json),
+  response_json = VALUES(response_json),
+  http_status = VALUES(http_status),
+  app_code = VALUES(app_code),
+  priority = VALUES(priority),
+  is_active = 1,
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO mock_api_response_fixture (
+  endpoint_id,
+  scenario_id,
+  fixture_name,
+  request_match_json,
+  response_json,
+  http_status,
+  app_code,
+  priority
+)
+SELECT
+  e.id,
+  s.id,
+  'empty-pay-money-list',
+  JSON_OBJECT('scenarioKey', 'demo-empty-user'),
+  JSON_OBJECT(
+    'code', 'SUCCESS',
+    'message', '페이머니 정보가 없습니다',
+    'data', JSON_OBJECT('payMoney', JSON_ARRAY(), 'totalBalance', 0, 'totalPointAmount', 0),
+    'traceId', '01J3MOCKEMPTYPAYMONEY',
+    'timestamp', '2026-07-31T10:30:00+09:00'
+  ),
+  200,
+  'SUCCESS',
+  20
+FROM mock_api_endpoint e
+JOIN mock_scenario s ON s.scenario_code = 'EMPTY_DATA'
+WHERE e.operation_key = 'asset_pay_money_list'
 ON DUPLICATE KEY UPDATE
   request_match_json = VALUES(request_match_json),
   response_json = VALUES(response_json),
