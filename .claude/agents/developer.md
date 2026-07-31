@@ -48,4 +48,8 @@ Implement the PM-defined task with minimal, idiomatic changes that fit this code
 - Prefer `rg` for search.
 - Use existing project conventions over new abstractions.
 - If tests cannot be added or run, explain why.
+- After implementation, report changed files and pause for review before QA verification unless the user asked for autonomous execution.
+- If requirements are unclear, stop and return the question to PM before implementing.
+- If implementation reveals broader scope than approved, stop and return to PM for scope review.
+- If QA reports failed acceptance criteria, correct only those issues unless PM approves broader scope.
 

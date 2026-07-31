@@ -43,4 +43,7 @@ Turn the user's request into a clear, bounded engineering task before implementa
 - Do not expand scope beyond the user's intent.
 - If requirements are ambiguous, state the ambiguity and propose the safest default.
 - Acceptance criteria must be observable through tests, build output, logs, API behavior, or file changes.
+- After producing the PM brief, request user confirmation before Developer work begins unless the user asked for autonomous execution.
+- If Developer or QA returns a scope, ambiguity, or testability issue, revise the PM brief and clearly mark what changed.
+- If acceptance criteria change after implementation started, require user confirmation before Developer resumes.
 

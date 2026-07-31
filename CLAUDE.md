@@ -22,6 +22,58 @@ On Windows PowerShell, prefer `.\gradlew.bat test` and `.\gradlew.bat build`.
 
 Use the roles below as separate mental lanes. If subagents are available, assign work to separate agents. If subagents are not available, execute the same process sequentially and label each section clearly.
 
+For implementation requests, use a human-in-the-loop checkpoint flow by default:
+
+1. PM prepares the task summary and acceptance criteria.
+2. Stop and ask the user to confirm or revise the PM brief.
+3. Developer implements only after PM approval.
+4. Stop and show the changed files and implementation notes.
+5. QA verifies after implementation review.
+6. Stop and show verification results and residual risks.
+
+Skip these checkpoints only when the user explicitly asks for fully autonomous execution.
+
+## Feedback Loop Rules
+
+The harness is defined by feedback loops, not only by role separation. Each role must produce output that can be checked by the next role or by the user.
+
+Use these loop rules by default:
+
+- If the PM brief is ambiguous, incomplete, or too broad, revise it before Developer work begins.
+- If the user changes acceptance criteria, return to PM and update the brief before implementation resumes.
+- If Developer discovers unclear requirements during implementation, stop and return the question to PM.
+- If Developer finds that the approved scope requires broader changes than expected, return to PM for scope review.
+- If implementation changes user-visible behavior beyond the approved criteria, return to PM for acceptance criteria review.
+- If QA finds a failed acceptance criterion, return the issue to Developer for correction.
+- If QA finds that the acceptance criteria are not testable or are incomplete, return to PM to rewrite them.
+- If a fix for a QA finding changes behavior or scope, return to QA after Developer correction.
+- If verification cannot be completed, report the blocker and do not mark the work complete.
+- If the user rejects any checkpoint output, return to the role that produced it and revise from there.
+
+Loop order:
+
+```text
+User Request
+-> PM Brief
+-> User Approval
+-> Developer Implementation
+-> Implementation Review
+-> QA Verification
+-> Final User Review
+```
+
+Failure paths:
+
+```text
+PM ambiguity -> PM revision
+User changes criteria -> PM revision
+Developer scope issue -> PM review
+Developer requirement question -> PM clarification
+QA failed criterion -> Developer correction -> QA reverification
+QA untestable criterion -> PM revision -> Developer adjustment -> QA reverification
+Verification blocked -> report blocker -> wait for user or environment fix
+```
+
 Role-specific prompts are stored in:
 
 - `.claude/agents/pm.md`
@@ -118,6 +170,9 @@ Recommended order:
 - Check `git status --short` before and after edits.
 - Prefer `rg` for search.
 - Use Gradle wrapper commands from the repository root.
+- For feature work, pause at PM, Developer, and QA handoff points so the user can inspect progress.
+- Treat failed acceptance criteria as loop inputs, not final failure states.
+- Every loop must preserve the latest approved PM brief as the source of truth.
 - Keep final summaries concise and mention tests actually run.
 - If a command cannot be run, explain the blocker and the verification gap.
 
