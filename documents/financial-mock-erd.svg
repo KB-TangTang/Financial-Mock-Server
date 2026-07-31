@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="720" viewBox="0 0 1180 720" role="img" aria-labelledby="title desc">
+  <title id="title">Financial Mock Server ERD</title>
+  <desc id="desc">Entity relationship diagram for the financial mock server database.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#5d6675"/>
+    </marker>
+    <style>
+      .bg { fill: #f7f8fb; }
+      .title { font: 700 28px Arial, sans-serif; fill: #202632; }
+      .subtitle { font: 400 14px Arial, sans-serif; fill: #5d6675; }
+      .group-title { font: 700 14px Arial, sans-serif; fill: #334155; }
+      .box { fill: #ffffff; stroke: #c9d2df; stroke-width: 1.5; rx: 8; }
+      .box-core { fill: #f1f7ff; stroke: #6aa4de; stroke-width: 1.7; rx: 8; }
+      .box-fixture { fill: #fff7ed; stroke: #f0a35e; stroke-width: 1.7; rx: 8; }
+      .box-codef { fill: #f0fdf4; stroke: #69b77b; stroke-width: 1.7; rx: 8; }
+      .entity { font: 700 15px Arial, sans-serif; fill: #172033; }
+      .field { font: 400 12px Arial, sans-serif; fill: #4b5563; }
+      .rel { fill: none; stroke: #5d6675; stroke-width: 1.6; marker-end: url(#arrow); }
+      .label { font: 400 12px Arial, sans-serif; fill: #5d6675; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1180" height="720"/>
+  <text x="48" y="52" class="title">Financial Mock Server ERD</text>
+  <text x="48" y="78" class="subtitle">CODEF source data, response fixtures, scenarios, and call logs are separated for reproducible API testing.</text>
+
+  <text x="60" y="126" class="group-title">User Context</text>
+  <rect x="48" y="142" width="240" height="104" class="box-core"/>
+  <text x="68" y="174" class="entity">mock_user</text>
+  <text x="68" y="199" class="field">PK id</text>
+  <text x="68" y="219" class="field">scenario_key, nickname</text>
+
+  <rect x="48" y="320" width="240" height="112" class="box-core"/>
+  <text x="68" y="352" class="entity">mock_scenario_assignment</text>
+  <text x="68" y="377" class="field">PK id</text>
+  <text x="68" y="397" class="field">FK user_id</text>
+  <text x="68" y="417" class="field">FK scenario_id</text>
+
+  <text x="394" y="126" class="group-title">CODEF Source Area</text>
+  <rect x="360" y="142" width="250" height="112" class="box-codef"/>
+  <text x="380" y="174" class="entity">mock_codef_connection</text>
+  <text x="380" y="199" class="field">PK id, FK user_id</text>
+  <text x="380" y="219" class="field">connected_id, status</text>
+  <text x="380" y="239" class="field">last_synced_at</text>
+
+  <rect x="720" y="142" width="250" height="112" class="box-codef"/>
+  <text x="740" y="174" class="entity">mock_codef_institution</text>
+  <text x="740" y="199" class="field">PK id</text>
+  <text x="740" y="219" class="field">codef_org_code, name</text>
+  <text x="740" y="239" class="field">type, is_supported</text>
+
+  <rect x="540" y="310" width="250" height="124" class="box-codef"/>
+  <text x="560" y="342" class="entity">mock_codef_account</text>
+  <text x="560" y="367" class="field">PK id</text>
+  <text x="560" y="387" class="field">FK connection_id</text>
+  <text x="560" y="407" class="field">account_type, masked_no</text>
+  <text x="560" y="427" class="field">currency, status</text>
+
+  <rect x="360" y="508" width="250" height="112" class="box-codef"/>
+  <text x="380" y="540" class="entity">mock_codef_transaction</text>
+  <text x="380" y="565" class="field">PK id, FK account_id</text>
+  <text x="380" y="585" class="field">codef_tr_key, amount</text>
+  <text x="380" y="605" class="field">transaction_at, raw_json</text>
+
+  <rect x="720" y="508" width="250" height="112" class="box-codef"/>
+  <text x="740" y="540" class="entity">mock_codef_balance_snapshot</text>
+  <text x="740" y="565" class="field">PK id, FK account_id</text>
+  <text x="740" y="585" class="field">balance, valuation_amount</text>
+  <text x="740" y="605" class="field">snapshot_at, raw_json</text>
+
+  <text x="978" y="126" class="group-title">Fixture Area</text>
+  <rect x="900" y="310" width="230" height="112" class="box-fixture"/>
+  <text x="920" y="342" class="entity">mock_api_endpoint</text>
+  <text x="920" y="367" class="field">PK id</text>
+  <text x="920" y="387" class="field">method, path</text>
+  <text x="920" y="407" class="field">operation_key</text>
+
+  <rect x="900" y="468" width="230" height="112" class="box-fixture"/>
+  <text x="920" y="500" class="entity">mock_api_response_fixture</text>
+  <text x="920" y="525" class="field">PK id</text>
+  <text x="920" y="545" class="field">request_match_json</text>
+  <text x="920" y="565" class="field">response_json</text>
+
+  <rect x="48" y="508" width="240" height="112" class="box-fixture"/>
+  <text x="68" y="540" class="entity">mock_scenario</text>
+  <text x="68" y="565" class="field">PK id</text>
+  <text x="68" y="585" class="field">scenario_code</text>
+  <text x="68" y="605" class="field">http_status, latency_ms</text>
+
+  <rect x="900" y="142" width="230" height="112" class="box-fixture"/>
+  <text x="920" y="174" class="entity">mock_api_call_log</text>
+  <text x="920" y="199" class="field">PK id</text>
+  <text x="920" y="219" class="field">request_json, trace_id</text>
+  <text x="920" y="239" class="field">called_at</text>
+
+  <path class="rel" d="M288 194 C320 194 328 198 360 198"/>
+  <text x="304" y="184" class="label">owns</text>
+  <path class="rel" d="M168 246 L168 320"/>
+  <text x="180" y="290" class="label">uses</text>
+  <path class="rel" d="M610 198 C650 198 680 198 720 198"/>
+  <text x="642" y="188" class="label">institution</text>
+  <path class="rel" d="M485 254 C485 298 512 372 540 372"/>
+  <text x="498" y="304" class="label">exposes</text>
+  <path class="rel" d="M790 372 C835 372 855 366 900 366"/>
+  <text x="824" y="356" class="label">has</text>
+  <path class="rel" d="M665 434 C620 470 560 490 520 508"/>
+  <text x="590" y="486" class="label">has</text>
+  <path class="rel" d="M710 434 C748 470 806 492 842 508"/>
+  <text x="760" y="486" class="label">has</text>
+  <path class="rel" d="M1015 422 L1015 468"/>
+  <text x="1027" y="450" class="label">has</text>
+  <path class="rel" d="M288 564 C520 650 740 650 900 548"/>
+  <text x="546" y="662" class="label">groups</text>
+  <path class="rel" d="M1015 310 L1015 254"/>
+  <text x="1027" y="286" class="label">records</text>
+</svg>
