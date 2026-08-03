@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.financial.mockserver.mapper.MockCallLogMapper">
+
+    <insert id="insert" parameterType="com.financial.mockserver.domain.MockApiCallLog">
+        INSERT INTO mock_api_call_log (
+            endpoint_id,
+            scenario_id,
+            user_id,
+            response_fixture_id,
+            request_method,
+            request_path,
+            request_json,
+            response_status,
+            trace_id
+        ) VALUES (
+            #{endpointId},
+            #{scenarioId},
+            #{userId},
+            #{responseFixtureId},
+            #{requestMethod},
+            #{requestPath},
+            #{requestJson, jdbcType=VARCHAR},
+            #{responseStatus},
+            #{traceId}
+        )
+    </insert>
+
+</mapper>
