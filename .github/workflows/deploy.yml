@@ -23,4 +23,4 @@ jobs:
             docker compose up --build -d
             docker image prune -f
             sleep 15
-            curl -f http://localhost:8080/api/health || echo "헬스체크 실패"
+            curl -f http://localhost:8080/api/health || (docker compose logs && exit 1)
