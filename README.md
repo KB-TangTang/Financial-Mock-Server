@@ -137,22 +137,13 @@ erDiagram
 
 ## Seed 데이터 현황
 
-`src/main/resources/db/init.sql`에는 다음 seed 데이터가 포함되어 있습니다.
+DB 스크립트는 schema와 seed를 분리해서 관리합니다.
 
-- 기본 시나리오 6건: 정상, 빈 데이터, 토큰 만료, 호출 제한, 외부 API 실패, 외부 API 일시 장애
-- API endpoint 16건
-- 테스트 사용자 2건: `demo-normal-user`, `demo-empty-user`
-- 금융기관 4건
-- CODEF 연결 2건
-- 금융 계정 4건: 은행, 증권, 대출, 페이머니
-- 은행 거래내역 3건
-- 증권 거래내역 3건: 삼성전자 매수, 카카오 매수, 배당금 입금
-- 페이머니 거래내역 3건: 충전, 편의점 결제, 포인트 적립
-- 대출 거래내역 3건: 대출 실행, 원리금 상환, 이자 납입
-- 증권 보유종목 2건
-- 대출 상세 1건
-- 페이머니 상세 1건
-- 응답 fixture 12건
+- `src/main/resources/db/schema.sql`: 테이블, 인덱스, FK 정의
+- `src/main/resources/db/seed.sql`: 시나리오, endpoint, 테스트 사용자, 자산/거래내역, fixture 데이터
+- `src/main/resources/db/init.sql`: 기존 실행 흐름 호환을 위한 schema + seed 통합본
+
+seed에는 현재 구현된 자산/거래내역 API용 정상 데이터와, 확장 예정 endpoint를 포함한 빈 데이터/오류 시나리오 fixture가 포함되어 있습니다.
 
 ## 개발 환경
 
@@ -181,7 +172,9 @@ src/main/java/com/financial/mockserver
   config/              Spring 설정
 
 src/main/resources
-  db/init.sql          초기 DB 생성 및 seed 스크립트
+  db/schema.sql        DB schema 스크립트
+  db/seed.sql          초기 seed 데이터 스크립트
+  db/init.sql          schema + seed 통합 호환 스크립트
   application.properties
   mybatis-config.xml
 
