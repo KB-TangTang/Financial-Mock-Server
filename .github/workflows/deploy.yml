@@ -1,0 +1,26 @@
+name: EC2 백엔드 자동 배포
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: EC2에 SSH 접속해서 배포
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/Financial-Mock-Server
+            git pull origin main
+            cd ~/Monorepo
+            docker compose down
+            docker compose up --build -d
+            docker image prune -f
+            sleep 15
+            curl -f http://localhost:8080/api/health || echo "헬스체크 실패"
