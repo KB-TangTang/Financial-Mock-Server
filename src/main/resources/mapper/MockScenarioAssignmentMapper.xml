@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.financial.mockserver.mapper.MockScenarioAssignmentMapper">
+
+    <!--
+      endpoint별 할당이 있으면 우선하고(엔드포인트 매치가 NULL이 아닌 행을 먼저),
+      없으면 endpoint_id가 NULL인 전역 할당을 사용한다.
+    -->
+    <select id="findActiveScenarioId" resultType="java.lang.Long">
+        SELECT scenario_id
+        FROM mock_scenario_assignment
+        WHERE user_id = #{userId}
+          AND is_active = 1
+          AND (endpoint_id = #{endpointId} OR endpoint_id IS NULL)
+          AND (starts_at IS NULL OR starts_at &lt;= NOW())
+          AND (ends_at IS NULL OR ends_at &gt;= NOW())
+        ORDER BY (endpoint_id IS NULL) ASC, id DESC
+        LIMIT 1
+    </select>
+
+</mapper>

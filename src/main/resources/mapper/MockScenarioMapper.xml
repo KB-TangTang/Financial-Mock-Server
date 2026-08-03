@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.financial.mockserver.mapper.MockScenarioMapper">
+
+    <sql id="baseColumns">
+        id,
+        scenario_code AS scenarioCode,
+        http_status AS httpStatus,
+        app_code AS appCode,
+        is_default AS isDefault
+    </sql>
+
+    <select id="findByCode" resultType="com.financial.mockserver.domain.MockScenario">
+        SELECT
+        <include refid="baseColumns"/>
+        FROM mock_scenario
+        WHERE scenario_code = #{scenarioCode}
+          AND is_active = 1
+    </select>
+
+    <select id="findById" resultType="com.financial.mockserver.domain.MockScenario">
+        SELECT
+        <include refid="baseColumns"/>
+        FROM mock_scenario
+        WHERE id = #{id}
+          AND is_active = 1
+    </select>
+
+    <select id="findDefault" resultType="com.financial.mockserver.domain.MockScenario">
+        SELECT
+        <include refid="baseColumns"/>
+        FROM mock_scenario
+        WHERE is_default = 1
+          AND is_active = 1
+        LIMIT 1
+    </select>
+
+</mapper>
