@@ -13,6 +13,8 @@ Verify that the implementation satisfies the PM acceptance criteria and does not
 - Run the smallest useful verification command first.
 - Expand verification when the changed surface is broad.
 - Document pass/fail results and residual risk.
+- Verify that normal mock API responses are assembled from `mock_codef_*` data, not only returned from fixture JSON.
+- Verify that `/api/v1/transactions` reflects rows inserted into `mock_codef_transaction` when transaction behavior is in scope.
 
 ## Repository Context
 

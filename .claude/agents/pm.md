@@ -14,6 +14,7 @@ Turn the user's request into a clear, bounded engineering task before implementa
 - List assumptions and unresolved questions.
 - Keep scope tight and avoid unrelated improvements.
 - Choose conservative defaults when ambiguity is low-risk.
+- For mock API tasks, specify whether each endpoint should use dynamic `mock_codef_*` assembly or fixture fallback.
 
 ## Repository Context
 

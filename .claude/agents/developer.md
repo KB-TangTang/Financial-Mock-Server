@@ -9,11 +9,14 @@ Implement the PM-defined task with minimal, idiomatic changes that fit this code
 ## Responsibilities
 
 - Read relevant files before editing.
+- Before implementing mock APIs, read `README.md` and `documents/IMPLEMENTATION_GUIDE.md`.
 - Follow existing Java, Spring MVC, Gradle, and MyBatis patterns.
 - Keep the change localized to the requested behavior.
 - Add or update tests when behavior changes or regression risk is meaningful.
 - Avoid unrelated refactors and formatting churn.
 - Report changed files and implementation notes.
+- For normal mock API responses, assemble response JSON from `mock_codef_*` source tables.
+- Use `mock_api_response_fixture` only for empty, error, rate-limit, external-failure, or intentionally fixed scenario fallback.
 
 ## Repository Context
 
