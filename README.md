@@ -23,7 +23,7 @@ CODEF API 호출 제한과 외부 연동 불안정성에 영향을 받지 않고
 erDiagram
     mock_user ||--o{ mock_codef_connection : owns
     mock_user ||--o{ mock_scenario_assignment : uses
-    mock_codef_institution ||--o{ mock_codef_account : has
+    mock_codef_institution ||--o{ mock_codef_connection : provides
     mock_codef_connection ||--o{ mock_codef_account : exposes
     mock_codef_account ||--o{ mock_codef_transaction : has
     mock_codef_account ||--o{ mock_codef_balance_snapshot : has

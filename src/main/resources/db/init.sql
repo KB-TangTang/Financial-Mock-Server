@@ -159,7 +159,6 @@ CREATE TABLE IF NOT EXISTS mock_codef_connection (
 CREATE TABLE IF NOT EXISTS mock_codef_account (
   id BIGINT NOT NULL AUTO_INCREMENT,
   connection_id BIGINT NOT NULL,
-  institution_id BIGINT NOT NULL,
   account_type VARCHAR(30) NOT NULL,
   account_no_masked VARCHAR(100) NOT NULL,
   account_no_encrypted VARCHAR(255) NULL,
@@ -173,11 +172,8 @@ CREATE TABLE IF NOT EXISTS mock_codef_account (
   PRIMARY KEY (id),
   UNIQUE KEY uk_mock_codef_account_connection_no (connection_id, account_no_masked),
   KEY idx_mock_codef_account_connection (connection_id, status),
-  KEY idx_mock_codef_account_institution (institution_id, account_type),
   CONSTRAINT fk_mock_codef_account_connection
-    FOREIGN KEY (connection_id) REFERENCES mock_codef_connection (id),
-  CONSTRAINT fk_mock_codef_account_institution
-    FOREIGN KEY (institution_id) REFERENCES mock_codef_institution (id)
+    FOREIGN KEY (connection_id) REFERENCES mock_codef_connection (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS mock_codef_transaction (
@@ -427,7 +423,6 @@ ON DUPLICATE KEY UPDATE
 
 INSERT INTO mock_codef_account (
   connection_id,
-  institution_id,
   account_type,
   account_no_masked,
   account_no_encrypted,
@@ -439,7 +434,6 @@ INSERT INTO mock_codef_account (
 )
 SELECT
   c.id,
-  i.id,
   'DEPOSIT',
   '123456******7890',
   'mock-encrypted-account-001',
@@ -454,7 +448,6 @@ SELECT
     'resAccountCurrency', 'KRW'
   )
 FROM mock_codef_connection c
-JOIN mock_codef_institution i ON i.id = c.institution_id
 WHERE c.connected_id = 'conn-demo-normal-kb'
 ON DUPLICATE KEY UPDATE
   account_name = VALUES(account_name),
@@ -598,7 +591,6 @@ ON DUPLICATE KEY UPDATE
 
 INSERT INTO mock_codef_account (
   connection_id,
-  institution_id,
   account_type,
   account_no_masked,
   account_no_encrypted,
@@ -610,7 +602,6 @@ INSERT INTO mock_codef_account (
 )
 SELECT
   c.id,
-  i.id,
   'STOCK',
   '987654******3210',
   'mock-encrypted-stock-account-001',
@@ -625,7 +616,6 @@ SELECT
     'resAccountCurrency', 'KRW'
   )
 FROM mock_codef_connection c
-JOIN mock_codef_institution i ON i.id = c.institution_id
 WHERE c.connected_id = 'conn-demo-normal-kb'
 ON DUPLICATE KEY UPDATE
   account_name = VALUES(account_name),
@@ -636,7 +626,6 @@ ON DUPLICATE KEY UPDATE
 
 INSERT INTO mock_codef_account (
   connection_id,
-  institution_id,
   account_type,
   account_no_masked,
   account_no_encrypted,
@@ -648,7 +637,6 @@ INSERT INTO mock_codef_account (
 )
 SELECT
   c.id,
-  i.id,
   'LOAN',
   '555555******1111',
   'mock-encrypted-loan-account-001',
@@ -663,7 +651,6 @@ SELECT
     'resCurrency', 'KRW'
   )
 FROM mock_codef_connection c
-JOIN mock_codef_institution i ON i.id = c.institution_id
 WHERE c.connected_id = 'conn-demo-normal-kb'
 ON DUPLICATE KEY UPDATE
   account_name = VALUES(account_name),
@@ -674,7 +661,6 @@ ON DUPLICATE KEY UPDATE
 
 INSERT INTO mock_codef_account (
   connection_id,
-  institution_id,
   account_type,
   account_no_masked,
   account_no_encrypted,
@@ -686,7 +672,6 @@ INSERT INTO mock_codef_account (
 )
 SELECT
   c.id,
-  i.id,
   'PAY_MONEY',
   'pay-****-2026',
   'mock-encrypted-pay-money-001',
@@ -701,7 +686,6 @@ SELECT
     'resCurrency', 'KRW'
   )
 FROM mock_codef_connection c
-JOIN mock_codef_institution i ON i.id = c.institution_id
 WHERE c.connected_id = 'conn-demo-normal-kb'
 ON DUPLICATE KEY UPDATE
   account_name = VALUES(account_name),
