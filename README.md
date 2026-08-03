@@ -10,8 +10,8 @@ CODEF API 호출 제한과 외부 연동 불안정성에 영향을 받지 않고
 - 계좌, 거래내역, 잔액, 자산 요약 등 금융 응답 데이터 재현
 - 은행, 증권, 대출, 페이머니 자산 테스트 데이터 제공
 - 정상, 빈 데이터, 인증 만료, 외부 API 실패, 호출 제한 등 다양한 시나리오 테스트
-- 프론트엔드·백엔드 연동 테스트용 고정 응답 제공
-- 실제 서비스 ERD와 분리된 목 서버 전용 fixture 관리
+- 프론트엔드·백엔드 연동 테스트용 응답 제공
+- 실제 서비스 ERD와 분리된 목 서버 전용 mock 데이터 관리
 
 ## 설계 방향
 
@@ -35,9 +35,9 @@ erDiagram
     mock_api_endpoint ||--o{ mock_api_call_log : records
 ```
 
-### 1. CODEF 원천 응답 영역
+### 1. CODEF 원천 mock 영역
 
-CODEF에서 내려오는 응답 구조를 최대한 보존하는 영역입니다. 실제 API 응답과 유사한 JSON을 저장하고, 요청 조건과 시나리오에 따라 적절한 응답을 반환합니다.
+실제 CODEF에서 내려올 법한 금융 데이터를 저장하는 영역입니다. 정상 응답은 이 영역의 데이터를 조회해 서버에서 JSON으로 조립합니다.
 
 주요 테이블:
 
@@ -50,17 +50,39 @@ CODEF에서 내려오는 응답 구조를 최대한 보존하는 영역입니다
 - `mock_codef_loan`: 대출 상세
 - `mock_codef_pay_money`: 페이머니·간편결제 잔액 상세
 
-### 2. 목 API 시나리오 영역
+### 2. Fixture 응답 영역
 
-특정 API 호출에 대해 어떤 응답을 반환할지 제어하는 영역입니다.
+특정 시나리오에 대해 고정 응답 JSON을 저장하는 영역입니다. 빈 데이터, 오류, 호출 제한, 외부 API 장애처럼 의도적으로 고정해야 하는 응답에 사용합니다.
 
 주요 테이블:
 
 - `mock_api_endpoint`: 목 서버가 제공하는 API 목록
 - `mock_scenario`: 정상·오류·빈 데이터 등 테스트 시나리오
-- `mock_api_response_fixture`: 요청 매칭 조건과 응답 JSON
+- `mock_api_response_fixture`: 요청 매칭 조건과 고정 응답 JSON
 - `mock_api_call_log`: 요청·응답 호출 이력
 - `mock_scenario_assignment`: 사용자 또는 endpoint별 시나리오 할당
+
+## 응답 생성 전략
+
+기본 전략은 다음과 같습니다.
+
+```text
+요청 수신
+-> scenarioKey 확인
+-> 정상 시나리오면 mock_codef_* 원천 데이터 조회
+-> 서버에서 response JSON 조립
+-> 응답 반환
+-> mock_api_call_log 저장
+```
+
+단, 다음 상황은 `mock_api_response_fixture.response_json`을 그대로 반환할 수 있습니다.
+
+- 빈 데이터 응답
+- 토큰 만료 응답
+- CODEF 호출 제한 응답
+- CODEF 연동 실패 응답
+- CODEF 일시 장애 응답
+- 특정 화면 시연을 위해 고정해야 하는 응답
 
 ## 기본 응답 원칙
 
@@ -71,8 +93,8 @@ CODEF에서 내려오는 응답 구조를 최대한 보존하는 영역입니다
   "code": "SUCCESS",
   "message": "조회 성공",
   "data": {},
-  "traceId": "01J3EXAMPLETRACE",
-  "timestamp": "2026-07-31T10:30:00+09:00"
+  "traceId": "generated-trace-id",
+  "timestamp": "server-time"
 }
 ```
 
@@ -168,25 +190,27 @@ documents/
   기능 명세서
   목 서버 설계 참고 문서
   financial-mock-erd.svg
+  IMPLEMENTATION_GUIDE.md
 ```
 
 ## 구현 우선순위
 
-1. fixture 조회 Mapper 구현
-2. 요청 조건과 `scenarioKey` 기반 fixture 매칭 구현
-3. 공통 envelope JSON 반환 구현
-4. `mock_api_call_log` 호출 이력 저장 구현
-5. 계좌 목록 조회 API 구현
-6. 증권·대출·페이머니 자산 조회 API 구현
-7. 통합 거래내역 조회 API 구현
-8. 오류·지연·호출 제한 시나리오 구현
+1. `scenarioKey` 기반 사용자/시나리오 확인 구현
+2. `mock_codef_*` 원천 데이터 조회 Mapper 구현
+3. 자산별 응답 JSON 조립 Service 구현
+4. 통합 거래내역 조회 API 구현
+5. 빈 데이터·오류·호출 제한 fixture fallback 구현
+6. `mock_api_call_log` 호출 이력 저장 구현
+7. 계좌·증권·대출·페이머니 자산 조회 API 구현
+8. CODEF 잔액 목 API 구현
 
 ## 운영 원칙
 
 - 실제 CODEF 인증정보나 민감정보를 저장하지 않습니다.
 - 계좌번호는 마스킹 또는 암호화된 테스트 값만 사용합니다.
-- fixture JSON은 재현 가능해야 하며, 임의 응답보다 명시적인 시나리오를 우선합니다.
-- 서비스 본 서버의 도메인 DB와 목 서버 fixture DB를 혼합하지 않습니다.
+- 거래내역처럼 자주 바뀌는 데이터는 JSON fixture만 수정하지 않고 원천 mock 테이블에 저장합니다.
+- fixture JSON은 빈 데이터, 오류, 호출 제한 등 명시적 시나리오에 사용합니다.
+- 서비스 본 서버의 도메인 DB와 목 서버 mock DB를 혼합하지 않습니다.
 - 외부 API 장애 상황도 정상 시나리오만큼 중요하게 관리합니다.
 
 ## 참고 문서
