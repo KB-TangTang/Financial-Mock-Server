@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.financial.mockserver.mapper.MockRawFinancialMapper">
+
+    <select id="findBankTransactions" resultType="com.financial.mockserver.dto.BankTransactionResponse">
+        SELECT
+            t.id AS transactionId,
+            a.id AS accountId,
+            i.institution_code AS institutionCode,
+            i.institution_name AS institutionName,
+            a.account_no_masked AS accountNoMasked,
+            a.product_name AS productName,
+            DATE_FORMAT(t.transacted_at, '%Y-%m-%dT%H:%i:%s+09:00') AS transactedAt,
+            t.trans_type_code AS transTypeCode,
+            t.trans_type_name AS transTypeName,
+            t.amount AS amount,
+            t.balance_after AS balanceAfter,
+            t.description AS description,
+            a.currency AS currency
+        FROM bank_transaction t
+        JOIN bank_account a ON a.id = t.bank_account_id
+        JOIN financial_institution i ON i.id = a.institution_id
+        WHERE a.user_id = #{userId}
+          AND a.id = #{accountId}
+          AND i.is_supported = 1
+        <if test="yearMonth != null and yearMonth != ''">
+            AND DATE_FORMAT(t.transacted_at, '%Y-%m') = #{yearMonth}
+        </if>
+        ORDER BY t.transacted_at DESC, t.id DESC
+    </select>
+
+    <select id="findCards" resultType="com.financial.mockserver.dto.CardResponse">
+        SELECT
+            c.id AS cardId,
+            i.institution_code AS institutionCode,
+            i.institution_name AS institutionName,
+            c.card_no_masked AS cardNoMasked,
+            c.product_name AS productName,
+            c.card_product_code AS cardProductCode,
+            c.card_type_code AS cardTypeCode,
+            c.card_status_code AS cardStatusCode,
+            c.currency AS currency,
+            DATE_FORMAT(c.issued_at, '%Y-%m-%d') AS issuedAt,
+            DATE_FORMAT(c.last_synced_at, '%Y-%m-%dT%H:%i:%s+09:00') AS lastSyncAt
+        FROM card c
+        JOIN financial_institution i ON i.id = c.institution_id
+        WHERE c.user_id = #{userId}
+          AND c.card_status_code = '01'
+          AND i.is_supported = 1
+        ORDER BY c.id
+    </select>
+
+    <select id="findCardApprovals" resultType="com.financial.mockserver.dto.CardApprovalResponse">
+        SELECT
+            a.id AS approvalId,
+            c.id AS cardId,
+            i.institution_code AS institutionCode,
+            i.institution_name AS institutionName,
+            c.card_no_masked AS cardNoMasked,
+            c.product_name AS productName,
+            c.card_product_code AS cardProductCode,
+            a.approval_no AS approvalNo,
+            DATE_FORMAT(a.approved_at, '%Y-%m-%dT%H:%i:%s+09:00') AS approvedAt,
+            a.approval_type_code AS approvalTypeCode,
+            a.approval_type_name AS approvalTypeName,
+            a.merchant_name AS merchantName,
+            a.merchant_business_no AS merchantBusinessNo,
+            a.approved_amount AS approvedAmount,
+            a.currency AS currency,
+            a.description AS description
+        FROM card_approval a
+        JOIN card c ON c.id = a.card_id
+        JOIN financial_institution i ON i.id = c.institution_id
+        WHERE c.user_id = #{userId}
+          AND c.id = #{cardId}
+          AND i.is_supported = 1
+        <if test="yearMonth != null and yearMonth != ''">
+            AND DATE_FORMAT(a.approved_at, '%Y-%m') = #{yearMonth}
+        </if>
+        ORDER BY a.approved_at DESC, a.id DESC
+    </select>
+
+</mapper>

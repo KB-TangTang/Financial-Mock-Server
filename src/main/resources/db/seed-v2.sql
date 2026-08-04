@@ -29,7 +29,10 @@ INSERT INTO mock_api_endpoint (
   ('INTERNAL', 'GET', '/api/v1/assets/stocks', 'asset_stock_list', '증권 계좌/보유 원천 조회'),
   ('INTERNAL', 'GET', '/api/v1/assets/payMoney', 'asset_pay_money_list', '구버전 호환용 빈 페이머니 조회'),
   ('INTERNAL', 'GET', '/api/v1/assets/loans', 'asset_loan_list', '대출 계좌 원천 조회'),
-  ('INTERNAL', 'GET', '/api/v1/transactions', 'transaction_list', '업권별 원천 거래 통합 조회'),
+  ('INTERNAL', 'GET', '/api/v1/accounts/{accountId}/transactions', 'bank_transaction_list', '은행 입출금 원천 내역 조회'),
+  ('INTERNAL', 'GET', '/api/v1/cards', 'card_list', '카드 원천 목록 조회'),
+  ('INTERNAL', 'GET', '/api/v1/cards/{cardId}/approvals', 'card_approval_list', '카드 승인 원천 내역 조회'),
+  ('CODEF', 'POST', '/codef/v1/account/list', 'codef_account_list', '기존 CODEF 계좌 목록 URL 호환'),
   ('CODEF', 'POST', '/codef/v1/account/balance', 'codef_balance', '은행 계좌 잔액 원천 응답 목업')
 ON DUPLICATE KEY UPDATE
   provider = VALUES(provider),
@@ -46,6 +49,17 @@ ON DUPLICATE KEY UPDATE
   email = VALUES(email),
   is_active = 1,
   updated_at = CURRENT_TIMESTAMP;
+
+UPDATE mock_api_endpoint
+SET is_active = 0,
+    updated_at = CURRENT_TIMESTAMP
+WHERE operation_key IN (
+  'transaction_list',
+  'transaction_monthly',
+  'transaction_search',
+  'transaction_category_update',
+  'codef_transaction_list'
+);
 
 INSERT INTO financial_institution (
   institution_code, institution_name, institution_type_code, is_supported
@@ -369,7 +383,17 @@ SELECT
   20
 FROM mock_api_endpoint e
 JOIN mock_scenario s ON s.scenario_code = 'EMPTY_DATA'
-WHERE e.operation_key IN ('asset_account_list', 'asset_stock_list', 'asset_loan_list', 'asset_pay_money_list', 'transaction_list', 'codef_balance')
+WHERE e.operation_key IN (
+  'asset_account_list',
+  'asset_stock_list',
+  'asset_loan_list',
+  'asset_pay_money_list',
+  'bank_transaction_list',
+  'card_list',
+  'card_approval_list',
+  'codef_account_list',
+  'codef_balance'
+)
 ON DUPLICATE KEY UPDATE
   request_match_json = VALUES(request_match_json),
   response_json = VALUES(response_json),
