@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.financial.mockserver.mapper.MockApiEndpointMapper">
+
+    <select id="findByMethodAndPath" resultType="com.financial.mockserver.domain.MockApiEndpoint">
+        SELECT
+            id,
+            provider,
+            method,
+            path,
+            operation_key AS operationKey
+        FROM mock_api_endpoint
+        WHERE method = #{method}
+          AND path = #{path}
+          AND is_active = 1
+    </select>
+
+</mapper>

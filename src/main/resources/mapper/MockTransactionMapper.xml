@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.financial.mockserver.mapper.MockTransactionMapper">
+
+    <!--
+      GET /api/v1/transactions
+      fixture를 사용하지 않고 mock_codef_transaction을 직접 조회한다.
+      시연 중 새 거래를 INSERT하면 다음 조회에 그대로 반영된다.
+    -->
+    <select id="findTransactions" resultType="com.financial.mockserver.dto.TransactionResponse">
+        SELECT
+            t.id AS transactionId,
+            a.account_type AS accountType,
+            a.account_name AS accountName,
+            i.name AS institutionName,
+            DATE_FORMAT(t.transaction_at, '%Y-%m-%dT%H:%i:%s+09:00') AS transactionAt,
+            t.merchant_name AS merchantName,
+            t.amount AS amount,
+            t.direction AS direction,
+            t.balance_after AS balanceAfter
+        FROM mock_codef_transaction t
+        JOIN mock_codef_account a ON a.id = t.account_id
+        JOIN mock_codef_connection c ON c.id = a.connection_id
+        JOIN mock_codef_institution i ON i.id = c.institution_id
+        WHERE c.user_id = #{userId}
+          AND i.is_supported = 1
+        <if test="yearMonth != null and yearMonth != ''">
+            AND DATE_FORMAT(t.transaction_at, '%Y-%m') = #{yearMonth}
+        </if>
+        ORDER BY t.transaction_at DESC, t.id DESC
+    </select>
+
+</mapper>
