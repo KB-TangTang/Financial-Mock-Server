@@ -10,7 +10,7 @@
       is_supported = 1 인 기관에 연결된 데이터만 노출한다.
     -->
 
-    <!-- GET /api/v1/assets/accounts : 은행(DEPOSIT) 계좌 목록 -->
+    <!-- GET /api/v1/assets/accounts : 은행 계좌 목록 (입출금 DEMAND_DEPOSIT + 예적금 SAVINGS) -->
     <select id="findBankAccounts" resultType="com.financial.mockserver.dto.AccountResponse">
         SELECT
             a.id AS accountId,
@@ -30,7 +30,7 @@
         JOIN mock_codef_connection c ON c.id = a.connection_id
         JOIN mock_codef_institution i ON i.id = c.institution_id
         WHERE c.user_id = #{userId}
-          AND a.account_type = 'DEPOSIT'
+          AND a.account_type IN ('DEMAND_DEPOSIT', 'SAVINGS')
           AND a.status = 'ACTIVE'
           AND i.is_supported = 1
         ORDER BY a.id
@@ -149,7 +149,7 @@
         JOIN mock_codef_connection c ON c.id = a.connection_id
         JOIN mock_codef_institution i ON i.id = c.institution_id
         WHERE c.user_id = #{userId}
-          AND a.account_type = 'DEPOSIT'
+          AND a.account_type IN ('DEMAND_DEPOSIT', 'SAVINGS')
           AND a.status = 'ACTIVE'
           AND i.is_supported = 1
         ORDER BY a.id
