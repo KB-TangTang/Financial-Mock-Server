@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * CODEF 잔액 응답을 모사하는 목 API.
- * 실제 CODEF 호출 대신 이 서버가 mock_codef_account/balance_snapshot을 조회해 응답한다.
+ * 실제 CODEF 호출 대신 이 서버가 bank_account의 원천 잔액 필드를 조회해 응답한다.
  */
 @RestController
 public class MockCodefController {

@@ -4,52 +4,38 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.financial.mockserver.mapper.MockAssetMapper">
 
-    <!--
-      모든 조회는 user -> connection -> account 흐름을 거치며,
-      mock_codef_institution은 "목 서버가 지원하는 금융기관/제공사" 마스터이므로
-      is_supported = 1 인 기관에 연결된 데이터만 노출한다.
-    -->
-
-    <!-- GET /api/v1/assets/accounts : 은행(DEPOSIT) 계좌 목록 -->
     <select id="findBankAccounts" resultType="com.financial.mockserver.dto.AccountResponse">
         SELECT
             a.id AS accountId,
-            i.codef_org_code AS bankCode,
-            i.name AS bankName,
-            a.account_type AS accountType,
-            a.account_name AS accountName,
+            i.institution_code AS institutionCode,
+            i.institution_name AS institutionName,
+            a.account_type_code AS accountTypeCode,
+            a.account_status_code AS accountStatusCode,
+            a.product_name AS productName,
             a.account_no_masked AS accountNoMasked,
             a.currency AS currency,
-            (SELECT bs.balance
-               FROM mock_codef_balance_snapshot bs
-              WHERE bs.account_id = a.id
-              ORDER BY bs.snapshot_at DESC
-              LIMIT 1) AS balance,
-            DATE_FORMAT(c.last_synced_at, '%Y-%m-%dT%H:%i:%s+09:00') AS lastSyncAt
-        FROM mock_codef_account a
-        JOIN mock_codef_connection c ON c.id = a.connection_id
-        JOIN mock_codef_institution i ON i.id = c.institution_id
-        WHERE c.user_id = #{userId}
-          AND a.account_type = 'DEPOSIT'
-          AND a.status = 'ACTIVE'
+            a.balance AS balance,
+            a.available_amount AS availableAmount,
+            DATE_FORMAT(a.last_synced_at, '%Y-%m-%dT%H:%i:%s+09:00') AS lastSyncAt
+        FROM bank_account a
+        JOIN financial_institution i ON i.id = a.institution_id
+        WHERE a.user_id = #{userId}
+          AND a.account_status_code = '01'
           AND i.is_supported = 1
         ORDER BY a.id
     </select>
 
-    <!-- GET /api/v1/assets/stocks : 증권 계좌 요약 (보유종목/합계는 서비스에서 채움) -->
     <select id="findStockAccountSummary" resultType="com.financial.mockserver.dto.StockAssetResponse">
         SELECT
             a.id AS accountId,
-            a.account_name AS accountName,
-            i.name AS institutionName,
+            a.product_name AS accountName,
+            i.institution_name AS institutionName,
             a.currency AS currency,
-            DATE_FORMAT(c.last_synced_at, '%Y-%m-%dT%H:%i:%s+09:00') AS lastSyncAt
-        FROM mock_codef_account a
-        JOIN mock_codef_connection c ON c.id = a.connection_id
-        JOIN mock_codef_institution i ON i.id = c.institution_id
-        WHERE c.user_id = #{userId}
-          AND a.account_type = 'STOCK'
-          AND a.status = 'ACTIVE'
+            DATE_FORMAT(a.last_synced_at, '%Y-%m-%dT%H:%i:%s+09:00') AS lastSyncAt
+        FROM securities_account a
+        JOIN financial_institution i ON i.id = a.institution_id
+        WHERE a.user_id = #{userId}
+          AND a.account_status_code = '01'
           AND i.is_supported = 1
         ORDER BY a.id
         LIMIT 1
@@ -57,9 +43,9 @@
 
     <select id="findStockHoldings" resultType="com.financial.mockserver.dto.StockHoldingResponse">
         SELECT
-            stock_code AS stockCode,
-            stock_name AS stockName,
-            market_country AS marketCountry,
+            product_code AS productCode,
+            product_name AS productName,
+            market_country_code AS marketCountry,
             currency AS currency,
             quantity AS quantity,
             average_purchase_price AS averagePurchasePrice,
@@ -68,76 +54,65 @@
             market_value AS marketValue,
             profit_loss_amount AS profitLossAmount,
             profit_loss_rate AS profitLossRate
-        FROM mock_codef_stock_holding
-        WHERE account_id = #{accountId}
+        FROM securities_holding
+        WHERE securities_account_id = #{accountId}
         ORDER BY id
     </select>
 
-    <!-- GET /api/v1/assets/loans -->
     <select id="findLoans" resultType="com.financial.mockserver.dto.LoanResponse">
         SELECT
             l.id AS loanId,
-            i.name AS bankName,
-            l.loan_name AS loanName,
-            l.loan_type AS loanType,
+            i.institution_code AS institutionCode,
+            i.institution_name AS institutionName,
+            l.product_name AS productName,
+            l.account_type_code AS accountTypeCode,
+            l.account_status_code AS accountStatusCode,
+            l.loan_no_masked AS loanNoMasked,
             l.currency AS currency,
-            l.loan_amount AS loanAmount,
-            l.balance AS balance,
+            l.principal AS principal,
+            l.outstanding_balance AS balance,
             l.interest_rate AS interestRate,
+            l.repayment_method_code AS repaymentMethodCode,
             DATE_FORMAT(l.start_date, '%Y-%m-%d') AS startDate,
             DATE_FORMAT(l.maturity_date, '%Y-%m-%d') AS maturityDate,
             l.monthly_payment AS monthlyPayment,
             DATE_FORMAT(l.next_payment_date, '%Y-%m-%d') AS nextPaymentDate
-        FROM mock_codef_loan l
-        JOIN mock_codef_account a ON a.id = l.account_id
-        JOIN mock_codef_connection c ON c.id = a.connection_id
-        JOIN mock_codef_institution i ON i.id = c.institution_id
-        WHERE c.user_id = #{userId}
-          AND a.status = 'ACTIVE'
+        FROM loan_account l
+        JOIN financial_institution i ON i.id = l.institution_id
+        WHERE l.user_id = #{userId}
+          AND l.account_status_code = '01'
           AND i.is_supported = 1
         ORDER BY l.id
     </select>
 
     <select id="findLoanLastSyncAt" resultType="java.lang.String">
-        SELECT DATE_FORMAT(MAX(c.last_synced_at), '%Y-%m-%dT%H:%i:%s+09:00')
-        FROM mock_codef_loan l
-        JOIN mock_codef_account a ON a.id = l.account_id
-        JOIN mock_codef_connection c ON c.id = a.connection_id
-        JOIN mock_codef_institution i ON i.id = c.institution_id
-        WHERE c.user_id = #{userId}
+        SELECT DATE_FORMAT(MAX(l.last_synced_at), '%Y-%m-%dT%H:%i:%s+09:00')
+        FROM loan_account l
+        JOIN financial_institution i ON i.id = l.institution_id
+        WHERE l.user_id = #{userId}
           AND i.is_supported = 1
     </select>
 
-    <!-- GET /api/v1/assets/payMoney -->
     <select id="findPayMoney" resultType="com.financial.mockserver.dto.PayMoneyResponse">
         SELECT
-            p.id AS payMoneyId,
-            p.provider_code AS providerCode,
-            p.provider_name AS providerName,
-            i.name AS institutionName,
-            p.wallet_name AS walletName,
-            p.currency AS currency,
-            p.balance AS balance,
-            p.available_amount AS availableAmount,
-            p.point_amount AS pointAmount,
-            DATE_FORMAT(p.last_synced_at, '%Y-%m-%dT%H:%i:%s+09:00') AS lastSyncAt
-        FROM mock_codef_pay_money p
-        JOIN mock_codef_account a ON a.id = p.account_id
-        JOIN mock_codef_connection c ON c.id = a.connection_id
-        JOIN mock_codef_institution i ON i.id = c.institution_id
-        WHERE c.user_id = #{userId}
-          AND a.status = 'ACTIVE'
-          AND i.is_supported = 1
-        ORDER BY p.id
+            NULL AS payMoneyId,
+            NULL AS providerCode,
+            NULL AS providerName,
+            NULL AS institutionName,
+            NULL AS walletName,
+            'KRW' AS currency,
+            0 AS balance,
+            0 AS availableAmount,
+            0 AS pointAmount,
+            NULL AS lastSyncAt
+        WHERE 1 = 0
     </select>
 
-    <!-- POST /codef/v1/account/balance 대상 계좌 조회 -->
     <select id="findAccountIdByMaskedNo" resultType="java.lang.Long">
         SELECT a.id
-        FROM mock_codef_account a
-        JOIN mock_codef_connection c ON c.id = a.connection_id
-        JOIN mock_codef_institution i ON i.id = c.institution_id
-        WHERE c.user_id = #{userId}
+        FROM bank_account a
+        JOIN financial_institution i ON i.id = a.institution_id
+        WHERE a.user_id = #{userId}
           AND a.account_no_masked = #{accountNoMasked}
           AND i.is_supported = 1
         LIMIT 1
@@ -145,12 +120,10 @@
 
     <select id="findFirstDepositAccountId" resultType="java.lang.Long">
         SELECT a.id
-        FROM mock_codef_account a
-        JOIN mock_codef_connection c ON c.id = a.connection_id
-        JOIN mock_codef_institution i ON i.id = c.institution_id
-        WHERE c.user_id = #{userId}
-          AND a.account_type = 'DEPOSIT'
-          AND a.status = 'ACTIVE'
+        FROM bank_account a
+        JOIN financial_institution i ON i.id = a.institution_id
+        WHERE a.user_id = #{userId}
+          AND a.account_status_code = '01'
           AND i.is_supported = 1
         ORDER BY a.id
         LIMIT 1
@@ -159,19 +132,16 @@
     <select id="findLatestBalance" resultType="com.financial.mockserver.dto.CodefBalanceResponse">
         SELECT
             a.id AS accountId,
-            i.name AS institutionName,
-            bs.balance AS balance,
-            bs.available_amount AS availableAmount,
-            bs.valuation_amount AS valuationAmount,
+            i.institution_name AS institutionName,
+            a.balance AS balance,
+            a.available_amount AS availableAmount,
+            a.balance AS valuationAmount,
             a.currency AS currency,
-            DATE_FORMAT(bs.snapshot_at, '%Y-%m-%dT%H:%i:%s+09:00') AS snapshotAt
-        FROM mock_codef_account a
-        JOIN mock_codef_connection c ON c.id = a.connection_id
-        JOIN mock_codef_institution i ON i.id = c.institution_id
-        LEFT JOIN mock_codef_balance_snapshot bs ON bs.account_id = a.id
+            DATE_FORMAT(a.last_synced_at, '%Y-%m-%dT%H:%i:%s+09:00') AS snapshotAt
+        FROM bank_account a
+        JOIN financial_institution i ON i.id = a.institution_id
         WHERE a.id = #{accountId}
           AND i.is_supported = 1
-        ORDER BY bs.snapshot_at DESC
         LIMIT 1
     </select>
 

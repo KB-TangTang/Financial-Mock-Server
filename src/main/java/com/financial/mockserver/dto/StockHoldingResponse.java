@@ -9,8 +9,8 @@ import java.math.BigDecimal;
  */
 @Data
 public class StockHoldingResponse {
-    private String stockCode;
-    private String stockName;
+    private String productCode;
+    private String productName;
     private String marketCountry;
     private String currency;
     private BigDecimal quantity;
@@ -20,4 +20,20 @@ public class StockHoldingResponse {
     private BigDecimal marketValue;
     private BigDecimal profitLossAmount;
     private BigDecimal profitLossRate;
+
+    public String getStockCode() {
+        return productCode;
+    }
+
+    public void setStockCode(String stockCode) {
+        this.productCode = stockCode;
+    }
+
+    public String getStockName() {
+        return productName;
+    }
+
+    public void setStockName(String stockName) {
+        this.productName = stockName;
+    }
 }

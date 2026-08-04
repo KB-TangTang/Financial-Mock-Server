@@ -4,32 +4,174 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.financial.mockserver.mapper.MockTransactionMapper">
 
-    <!--
-      GET /api/v1/transactions
-      fixture를 사용하지 않고 mock_codef_transaction을 직접 조회한다.
-      시연 중 새 거래를 INSERT하면 다음 조회에 그대로 반영된다.
-    -->
     <select id="findTransactions" resultType="com.financial.mockserver.dto.TransactionResponse">
-        SELECT
-            t.id AS transactionId,
-            a.account_type AS accountType,
-            a.account_name AS accountName,
-            i.name AS institutionName,
-            DATE_FORMAT(t.transaction_at, '%Y-%m-%dT%H:%i:%s+09:00') AS transactionAt,
-            t.merchant_name AS merchantName,
-            t.amount AS amount,
-            t.direction AS direction,
-            t.balance_after AS balanceAfter
-        FROM mock_codef_transaction t
-        JOIN mock_codef_account a ON a.id = t.account_id
-        JOIN mock_codef_connection c ON c.id = a.connection_id
-        JOIN mock_codef_institution i ON i.id = c.institution_id
-        WHERE c.user_id = #{userId}
-          AND i.is_supported = 1
+        SELECT *
+        FROM (
+            SELECT
+                CONCAT('BANK-', t.id) AS transactionId,
+                'BANK' AS sourceType,
+                a.id AS sourceAccountId,
+                i.institution_code AS institutionCode,
+                i.institution_name AS institutionName,
+                a.account_type_code AS productCode,
+                a.product_name AS productName,
+                a.account_no_masked AS accountNoMasked,
+                DATE_FORMAT(t.transacted_at, '%Y-%m-%dT%H:%i:%s+09:00') AS transactionAt,
+                t.trans_type_code AS transTypeCode,
+                t.trans_type_name AS transTypeName,
+                t.description AS description,
+                NULL AS merchantName,
+                t.amount AS amount,
+                t.balance_after AS balanceAfter,
+                a.currency AS currency,
+                t.transacted_at AS sortAt,
+                t.id AS sortId
+            FROM bank_transaction t
+            JOIN bank_account a ON a.id = t.bank_account_id
+            JOIN financial_institution i ON i.id = a.institution_id
+            WHERE a.user_id = #{userId}
+              AND i.is_supported = 1
+
+            UNION ALL
+
+            SELECT
+                CONCAT('CARD-APPROVAL-', t.id) AS transactionId,
+                'CARD_APPROVAL' AS sourceType,
+                c.id AS sourceAccountId,
+                i.institution_code AS institutionCode,
+                i.institution_name AS institutionName,
+                c.card_product_code AS productCode,
+                c.product_name AS productName,
+                c.card_no_masked AS accountNoMasked,
+                DATE_FORMAT(t.approved_at, '%Y-%m-%dT%H:%i:%s+09:00') AS transactionAt,
+                t.approval_type_code AS transTypeCode,
+                t.approval_type_name AS transTypeName,
+                t.description AS description,
+                t.merchant_name AS merchantName,
+                t.approved_amount AS amount,
+                NULL AS balanceAfter,
+                t.currency AS currency,
+                t.approved_at AS sortAt,
+                t.id AS sortId
+            FROM card_approval t
+            JOIN card c ON c.id = t.card_id
+            JOIN financial_institution i ON i.id = c.institution_id
+            WHERE c.user_id = #{userId}
+              AND i.is_supported = 1
+
+            UNION ALL
+
+            SELECT
+                CONCAT('CARD-BILL-', t.id) AS transactionId,
+                'CARD_BILL' AS sourceType,
+                c.id AS sourceAccountId,
+                i.institution_code AS institutionCode,
+                i.institution_name AS institutionName,
+                c.card_product_code AS productCode,
+                c.product_name AS productName,
+                c.card_no_masked AS accountNoMasked,
+                DATE_FORMAT(t.billing_month, '%Y-%m-01T00:00:00+09:00') AS transactionAt,
+                t.bill_status_code AS transTypeCode,
+                t.bill_status_name AS transTypeName,
+                CONCAT(DATE_FORMAT(t.billing_month, '%Y-%m'), ' 카드 청구') AS description,
+                NULL AS merchantName,
+                t.total_amount AS amount,
+                NULL AS balanceAfter,
+                c.currency AS currency,
+                t.billing_month AS sortAt,
+                t.id AS sortId
+            FROM card_bill t
+            JOIN card c ON c.id = t.card_id
+            JOIN financial_institution i ON i.id = c.institution_id
+            WHERE c.user_id = #{userId}
+              AND i.is_supported = 1
+
+            UNION ALL
+
+            SELECT
+                CONCAT('DEPOSIT-', t.id) AS transactionId,
+                'DEPOSIT' AS sourceType,
+                a.id AS sourceAccountId,
+                i.institution_code AS institutionCode,
+                i.institution_name AS institutionName,
+                a.deposit_type_code AS productCode,
+                a.product_name AS productName,
+                a.account_no_masked AS accountNoMasked,
+                DATE_FORMAT(t.transacted_at, '%Y-%m-%dT%H:%i:%s+09:00') AS transactionAt,
+                t.trans_type_code AS transTypeCode,
+                t.trans_type_name AS transTypeName,
+                t.description AS description,
+                NULL AS merchantName,
+                t.amount AS amount,
+                t.balance_after AS balanceAfter,
+                a.currency AS currency,
+                t.transacted_at AS sortAt,
+                t.id AS sortId
+            FROM deposit_transaction t
+            JOIN deposit_account a ON a.id = t.deposit_account_id
+            JOIN financial_institution i ON i.id = a.institution_id
+            WHERE a.user_id = #{userId}
+              AND i.is_supported = 1
+
+            UNION ALL
+
+            SELECT
+                CONCAT('LOAN-', t.id) AS transactionId,
+                'LOAN' AS sourceType,
+                a.id AS sourceAccountId,
+                i.institution_code AS institutionCode,
+                i.institution_name AS institutionName,
+                a.account_type_code AS productCode,
+                a.product_name AS productName,
+                a.loan_no_masked AS accountNoMasked,
+                DATE_FORMAT(t.transacted_at, '%Y-%m-%dT%H:%i:%s+09:00') AS transactionAt,
+                t.trans_type_code AS transTypeCode,
+                t.trans_type_name AS transTypeName,
+                t.description AS description,
+                NULL AS merchantName,
+                t.amount AS amount,
+                t.balance_after AS balanceAfter,
+                a.currency AS currency,
+                t.transacted_at AS sortAt,
+                t.id AS sortId
+            FROM loan_transaction t
+            JOIN loan_account a ON a.id = t.loan_account_id
+            JOIN financial_institution i ON i.id = a.institution_id
+            WHERE a.user_id = #{userId}
+              AND i.is_supported = 1
+
+            UNION ALL
+
+            SELECT
+                CONCAT('SECURITIES-', t.id) AS transactionId,
+                'SECURITIES' AS sourceType,
+                a.id AS sourceAccountId,
+                i.institution_code AS institutionCode,
+                i.institution_name AS institutionName,
+                t.product_code AS productCode,
+                t.product_name AS productName,
+                a.account_no_masked AS accountNoMasked,
+                DATE_FORMAT(t.transacted_at, '%Y-%m-%dT%H:%i:%s+09:00') AS transactionAt,
+                t.trans_type_code AS transTypeCode,
+                t.trans_type_name AS transTypeName,
+                t.description AS description,
+                NULL AS merchantName,
+                t.transaction_amount AS amount,
+                NULL AS balanceAfter,
+                a.currency AS currency,
+                t.transacted_at AS sortAt,
+                t.id AS sortId
+            FROM securities_transaction t
+            JOIN securities_account a ON a.id = t.securities_account_id
+            JOIN financial_institution i ON i.id = a.institution_id
+            WHERE a.user_id = #{userId}
+              AND i.is_supported = 1
+        ) tx
+        WHERE 1 = 1
         <if test="yearMonth != null and yearMonth != ''">
-            AND DATE_FORMAT(t.transaction_at, '%Y-%m') = #{yearMonth}
+            AND DATE_FORMAT(sortAt, '%Y-%m') = #{yearMonth}
         </if>
-        ORDER BY t.transaction_at DESC, t.id DESC
+        ORDER BY sortAt DESC, sortId DESC
     </select>
 
 </mapper>

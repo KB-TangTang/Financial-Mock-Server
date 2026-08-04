@@ -10,15 +10,27 @@ import java.math.BigDecimal;
 @Data
 public class LoanResponse {
     private Long loanId;
-    private String bankName;
-    private String loanName;
-    private String loanType;
+    private String institutionCode;
+    private String institutionName;
+    private String productName;
+    private String accountTypeCode;
+    private String accountStatusCode;
+    private String loanNoMasked;
     private String currency;
-    private BigDecimal loanAmount;
+    private BigDecimal principal;
     private BigDecimal balance;
     private BigDecimal interestRate;
+    private String repaymentMethodCode;
     private String startDate;
     private String maturityDate;
     private BigDecimal monthlyPayment;
     private String nextPaymentDate;
+
+    public BigDecimal getLoanAmount() {
+        return principal;
+    }
+
+    public void setLoanAmount(BigDecimal loanAmount) {
+        this.principal = loanAmount;
+    }
 }

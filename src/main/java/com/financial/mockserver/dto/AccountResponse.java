@@ -10,12 +10,14 @@ import java.math.BigDecimal;
 @Data
 public class AccountResponse {
     private Long accountId;
-    private String bankCode;
-    private String bankName;
-    private String accountType;
-    private String accountName;
+    private String institutionCode;
+    private String institutionName;
+    private String accountTypeCode;
+    private String accountStatusCode;
+    private String productName;
     private String accountNoMasked;
     private String currency;
     private BigDecimal balance;
+    private BigDecimal availableAmount;
     private String lastSyncAt;
 }

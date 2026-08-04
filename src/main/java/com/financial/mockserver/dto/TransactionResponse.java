@@ -10,13 +10,20 @@ import java.math.BigDecimal;
  */
 @Data
 public class TransactionResponse {
-    private Long transactionId;
-    private String accountType;
-    private String accountName;
+    private String transactionId;
+    private String sourceType;
+    private Long sourceAccountId;
+    private String institutionCode;
     private String institutionName;
+    private String productCode;
+    private String productName;
+    private String accountNoMasked;
     private String transactionAt;
+    private String transTypeCode;
+    private String transTypeName;
+    private String description;
     private String merchantName;
     private BigDecimal amount;
-    private String direction;
     private BigDecimal balanceAfter;
+    private String currency;
 }

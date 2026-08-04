@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 은행·증권·대출·페이머니 통합 거래내역 조회 API.
- * fixture를 사용하지 않고 mock_codef_transaction을 조회해 조립하므로,
+ * fixture를 사용하지 않고 업권별 원천 거래 테이블을 조회해 조립한다.
  * 시연 중 새 거래를 INSERT하면 다음 조회부터 그대로 반영된다.
  */
 @RestController
