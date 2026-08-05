@@ -94,6 +94,39 @@
         ORDER BY t.transacted_at DESC, t.id DESC
     </select>
 
+    <select id="findSecuritiesTransactions" resultType="com.financial.mockserver.dto.SecuritiesTransactionResponse">
+        SELECT
+            t.id AS transactionId,
+            a.id AS securitiesAccountId,
+            i.institution_code AS institutionCode,
+            i.institution_name AS institutionName,
+            a.account_no_masked AS accountNoMasked,
+            a.product_name AS productName,
+            a.account_type_code AS accountTypeCode,
+            DATE_FORMAT(t.transacted_at, '%Y-%m-%dT%H:%i:%s+09:00') AS transactedAt,
+            t.trans_type_code AS transTypeCode,
+            t.trans_type_name AS transTypeName,
+            t.product_code AS securityProductCode,
+            t.product_name AS securityProductName,
+            t.quantity AS quantity,
+            t.unit_price AS unitPrice,
+            t.transaction_amount AS transactionAmount,
+            t.description AS description,
+            a.currency AS currency
+        FROM securities_transaction t
+        JOIN securities_account a ON a.id = t.securities_account_id
+        JOIN financial_institution i ON i.id = a.institution_id
+        WHERE a.user_id = #{userId}
+          AND a.id = #{accountId}
+          AND a.account_status_code = '01'
+          AND i.is_supported = 1
+          AND t.transacted_at <= CURRENT_TIMESTAMP
+        <if test="yearMonth != null and yearMonth != ''">
+            AND DATE_FORMAT(t.transacted_at, '%Y-%m') = #{yearMonth}
+        </if>
+        ORDER BY t.transacted_at DESC, t.id DESC
+    </select>
+
     <select id="findCards" resultType="com.financial.mockserver.dto.CardResponse">
         SELECT
             c.id AS cardId,

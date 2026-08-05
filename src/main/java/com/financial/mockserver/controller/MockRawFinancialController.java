@@ -66,6 +66,22 @@ public class MockRawFinancialController {
         return toResponseEntity(result);
     }
 
+    @GetMapping("/api/v1/securities/{accountId}/transactions")
+    public ResponseEntity<Object> getSecuritiesTransactions(
+            @PathVariable Long accountId,
+            @RequestParam(required = false) String scenarioKey,
+            @RequestHeader(value = "X-Scenario-Key", required = false) String scenarioKeyHeader,
+            @RequestParam(required = false) String scenario,
+            @RequestHeader(value = "X-Mock-Scenario", required = false) String scenarioHeader,
+            @RequestParam(required = false) String yearMonth) {
+        MockApiResult result = rawFinancialService.getSecuritiesTransactions(
+                MockResponseSupport.firstNonBlank(scenarioKey, scenarioKeyHeader),
+                MockResponseSupport.firstNonBlank(scenario, scenarioHeader),
+                accountId,
+                yearMonth);
+        return toResponseEntity(result);
+    }
+
     @GetMapping("/api/v1/cards")
     public ResponseEntity<Object> getCards(
             @RequestParam(required = false) String scenarioKey,
