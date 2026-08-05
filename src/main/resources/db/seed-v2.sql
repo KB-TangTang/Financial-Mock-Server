@@ -152,6 +152,26 @@ ON DUPLICATE KEY UPDATE
   raw_json = VALUES(raw_json),
   updated_at = CURRENT_TIMESTAMP;
 
+INSERT INTO card_payment_account (
+  card_id, bank_account_id, valid_from, valid_to,
+  is_primary, source_type, match_confidence
+)
+SELECT
+  c.id, ba.id, '2025-04-01', NULL,
+  1, 'API', NULL
+FROM card c
+JOIN mock_user u ON u.id = c.user_id
+JOIN bank_account ba ON ba.user_id = u.id
+WHERE u.scenario_key = 'demo-normal-user'
+  AND c.card_no_masked = '5555-****-****-1234'
+  AND ba.account_no_masked = '123456******7890'
+ON DUPLICATE KEY UPDATE
+  valid_to = VALUES(valid_to),
+  is_primary = VALUES(is_primary),
+  source_type = VALUES(source_type),
+  match_confidence = VALUES(match_confidence),
+  updated_at = CURRENT_TIMESTAMP;
+
 INSERT INTO card_approval (
   card_id, approval_no, approved_at, approval_type_code, approval_type_name,
   merchant_name, merchant_business_no, approved_amount, currency, description, raw_json

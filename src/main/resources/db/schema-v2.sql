@@ -22,6 +22,7 @@ DROP TABLE IF EXISTS deposit_transaction;
 DROP TABLE IF EXISTS deposit_account;
 DROP TABLE IF EXISTS card_bill;
 DROP TABLE IF EXISTS card_approval;
+DROP TABLE IF EXISTS card_payment_account;
 DROP TABLE IF EXISTS card;
 DROP TABLE IF EXISTS pay_money;
 DROP TABLE IF EXISTS bank_transaction;
@@ -212,6 +213,29 @@ CREATE TABLE card (
   KEY idx_card_user_status (user_id, card_status_code),
   CONSTRAINT fk_card_user FOREIGN KEY (user_id) REFERENCES mock_user (id),
   CONSTRAINT fk_card_institution FOREIGN KEY (institution_id) REFERENCES financial_institution (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE card_payment_account (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  card_id BIGINT NOT NULL,
+  bank_account_id BIGINT NOT NULL,
+  valid_from DATE NOT NULL,
+  valid_to DATE NULL,
+  is_primary TINYINT(1) NOT NULL DEFAULT 1,
+  source_type VARCHAR(30) NOT NULL,
+  match_confidence DECIMAL(5,4) NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_card_payment_account_period (card_id, bank_account_id, valid_from),
+  KEY idx_card_payment_account_card_period (card_id, valid_from, valid_to),
+  KEY idx_card_payment_account_bank (bank_account_id),
+  CONSTRAINT fk_card_payment_account_card FOREIGN KEY (card_id) REFERENCES card (id),
+  CONSTRAINT fk_card_payment_account_bank FOREIGN KEY (bank_account_id) REFERENCES bank_account (id),
+  CONSTRAINT chk_card_payment_account_period CHECK (valid_to IS NULL OR valid_to >= valid_from),
+  CONSTRAINT chk_card_payment_account_confidence CHECK (
+    match_confidence IS NULL OR (match_confidence >= 0.0000 AND match_confidence <= 1.0000)
+  )
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE card_approval (
