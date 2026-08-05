@@ -11,6 +11,8 @@ import com.financial.mockserver.dto.CardListResponse;
 import com.financial.mockserver.dto.CardResponse;
 import com.financial.mockserver.dto.DepositTransactionListResponse;
 import com.financial.mockserver.dto.DepositTransactionResponse;
+import com.financial.mockserver.dto.LoanTransactionListResponse;
+import com.financial.mockserver.dto.LoanTransactionResponse;
 import com.financial.mockserver.mapper.MockRawFinancialMapper;
 import com.financial.mockserver.service.MockRawFinancialService;
 import com.financial.mockserver.support.MockApiResult;
@@ -24,6 +26,7 @@ public class MockRawFinancialServiceImpl extends AbstractMockApiService implemen
 
     private static final String BANK_TRANSACTIONS_PATH = "/api/v1/accounts/{accountId}/transactions";
     private static final String DEPOSIT_TRANSACTIONS_PATH = "/api/v1/deposits/{depositAccountId}/transactions";
+    private static final String LOAN_TRANSACTIONS_PATH = "/api/v1/loans/{loanId}/transactions";
     private static final String CARDS_PATH = "/api/v1/cards";
     private static final String CARD_APPROVALS_PATH = "/api/v1/cards/{cardId}/approvals";
     private static final String CARD_BILLS_PATH = "/api/v1/cards/{cardId}/bills";
@@ -61,6 +64,23 @@ public class MockRawFinancialServiceImpl extends AbstractMockApiService implemen
                                     ctx.getUser().getId(), depositAccountId, yearMonth);
                     DepositTransactionListResponse data = new DepositTransactionListResponse(transactions);
                     return ApiEnvelope.of("SUCCESS", "Deposit transactions fetched successfully",
+                            data, traceId, timestamp);
+                });
+    }
+
+    @Override
+    public MockApiResult getLoanTransactions(
+            String scenarioKey,
+            String scenarioOverride,
+            Long loanId,
+            String yearMonth) {
+        String requestJson = buildRequestJson("loanId", loanId, "yearMonth", yearMonth);
+        return respond("GET", LOAN_TRANSACTIONS_PATH, scenarioKey, scenarioOverride, requestJson,
+                (ctx, traceId, timestamp) -> {
+                    List<LoanTransactionResponse> transactions =
+                            rawFinancialMapper.findLoanTransactions(ctx.getUser().getId(), loanId, yearMonth);
+                    LoanTransactionListResponse data = new LoanTransactionListResponse(transactions);
+                    return ApiEnvelope.of("SUCCESS", "Loan transactions fetched successfully",
                             data, traceId, timestamp);
                 });
     }

@@ -62,6 +62,38 @@
         ORDER BY t.transacted_at DESC, t.id DESC
     </select>
 
+    <select id="findLoanTransactions" resultType="com.financial.mockserver.dto.LoanTransactionResponse">
+        SELECT
+            t.id AS transactionId,
+            l.id AS loanId,
+            i.institution_code AS institutionCode,
+            i.institution_name AS institutionName,
+            l.loan_no_masked AS loanNoMasked,
+            l.product_name AS productName,
+            l.account_type_code AS accountTypeCode,
+            DATE_FORMAT(t.transacted_at, '%Y-%m-%dT%H:%i:%s+09:00') AS transactedAt,
+            t.trans_type_code AS transTypeCode,
+            t.trans_type_name AS transTypeName,
+            t.amount AS amount,
+            t.principal_amount AS principalAmount,
+            t.interest_amount AS interestAmount,
+            t.balance_after AS balanceAfter,
+            t.description AS description,
+            l.currency AS currency
+        FROM loan_transaction t
+        JOIN loan_account l ON l.id = t.loan_account_id
+        JOIN financial_institution i ON i.id = l.institution_id
+        WHERE l.user_id = #{userId}
+          AND l.id = #{loanId}
+          AND l.account_status_code = '01'
+          AND i.is_supported = 1
+          AND t.transacted_at <= CURRENT_TIMESTAMP
+        <if test="yearMonth != null and yearMonth != ''">
+            AND DATE_FORMAT(t.transacted_at, '%Y-%m') = #{yearMonth}
+        </if>
+        ORDER BY t.transacted_at DESC, t.id DESC
+    </select>
+
     <select id="findCards" resultType="com.financial.mockserver.dto.CardResponse">
         SELECT
             c.id AS cardId,
