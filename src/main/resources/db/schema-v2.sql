@@ -24,6 +24,7 @@ DROP TABLE IF EXISTS card_bill;
 DROP TABLE IF EXISTS card_approval;
 DROP TABLE IF EXISTS card_payment_account;
 DROP TABLE IF EXISTS card;
+DROP TABLE IF EXISTS pay_money_transaction;
 DROP TABLE IF EXISTS pay_money;
 DROP TABLE IF EXISTS bank_transaction;
 DROP TABLE IF EXISTS bank_account;
@@ -297,6 +298,28 @@ CREATE TABLE pay_money (
   KEY idx_pay_money_user_provider (user_id, provider_code),
   CONSTRAINT fk_pay_money_user FOREIGN KEY (user_id) REFERENCES mock_user (id),
   CONSTRAINT fk_pay_money_institution FOREIGN KEY (institution_id) REFERENCES financial_institution (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE pay_money_transaction (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  pay_money_id BIGINT NOT NULL,
+  original_transaction_id VARCHAR(100) NOT NULL,
+  transacted_at DATETIME NOT NULL,
+  trans_type_code VARCHAR(30) NOT NULL,
+  trans_type_name VARCHAR(100) NULL,
+  amount DECIMAL(18,2) NOT NULL,
+  balance_after DECIMAL(18,2) NULL,
+  point_amount DECIMAL(18,2) NULL,
+  point_balance_after DECIMAL(18,2) NULL,
+  merchant_name VARCHAR(255) NULL,
+  description VARCHAR(255) NULL,
+  raw_json JSON NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_pay_money_transaction_original (pay_money_id, original_transaction_id),
+  KEY idx_pay_money_transaction_wallet_date (pay_money_id, transacted_at),
+  CONSTRAINT fk_pay_money_transaction_wallet FOREIGN KEY (pay_money_id) REFERENCES pay_money (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE deposit_account (

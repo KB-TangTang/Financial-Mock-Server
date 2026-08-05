@@ -234,6 +234,54 @@ ON DUPLICATE KEY UPDATE
   raw_json = VALUES(raw_json),
   updated_at = CURRENT_TIMESTAMP;
 
+INSERT INTO pay_money_transaction (
+  pay_money_id, original_transaction_id, transacted_at, trans_type_code,
+  trans_type_name, amount, balance_after, point_amount, point_balance_after,
+  merchant_name, description, raw_json
+)
+SELECT id, 'PAY-20260710-001', '2026-07-10 08:30:00', '01',
+       'Charge', 100000.00, 100000.00, 0.00, 1240.00,
+       NULL, 'Pay money charge',
+       JSON_OBJECT('trType', '01', 'providerCode', provider_code, 'walletId', wallet_id)
+FROM pay_money
+WHERE provider_code = 'KB_PAY'
+  AND wallet_id = 'wallet-demo-normal-001'
+ON DUPLICATE KEY UPDATE
+  trans_type_code = VALUES(trans_type_code),
+  trans_type_name = VALUES(trans_type_name),
+  amount = VALUES(amount),
+  balance_after = VALUES(balance_after),
+  point_amount = VALUES(point_amount),
+  point_balance_after = VALUES(point_balance_after),
+  merchant_name = VALUES(merchant_name),
+  description = VALUES(description),
+  raw_json = VALUES(raw_json),
+  updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO pay_money_transaction (
+  pay_money_id, original_transaction_id, transacted_at, trans_type_code,
+  trans_type_name, amount, balance_after, point_amount, point_balance_after,
+  merchant_name, description, raw_json
+)
+SELECT id, 'PAY-20260720-001', '2026-07-20 12:10:00', '02',
+       'Payment', -16500.00, 83500.00, -260.00, 980.00,
+       'Mock Coffee', 'Pay money payment',
+       JSON_OBJECT('trType', '02', 'providerCode', provider_code, 'walletId', wallet_id, 'merchantName', 'Mock Coffee')
+FROM pay_money
+WHERE provider_code = 'KB_PAY'
+  AND wallet_id = 'wallet-demo-normal-001'
+ON DUPLICATE KEY UPDATE
+  trans_type_code = VALUES(trans_type_code),
+  trans_type_name = VALUES(trans_type_name),
+  amount = VALUES(amount),
+  balance_after = VALUES(balance_after),
+  point_amount = VALUES(point_amount),
+  point_balance_after = VALUES(point_balance_after),
+  merchant_name = VALUES(merchant_name),
+  description = VALUES(description),
+  raw_json = VALUES(raw_json),
+  updated_at = CURRENT_TIMESTAMP;
+
 INSERT INTO deposit_account (
   user_id, institution_id, account_no_masked, product_name, deposit_type_code,
   account_status_code, currency, principal, balance, interest_rate, opened_at, maturity_date, last_synced_at, raw_json
