@@ -5,6 +5,8 @@ import com.financial.mockserver.dto.BankTransactionListResponse;
 import com.financial.mockserver.dto.BankTransactionResponse;
 import com.financial.mockserver.dto.CardApprovalListResponse;
 import com.financial.mockserver.dto.CardApprovalResponse;
+import com.financial.mockserver.dto.CardBillListResponse;
+import com.financial.mockserver.dto.CardBillResponse;
 import com.financial.mockserver.dto.CardListResponse;
 import com.financial.mockserver.dto.CardResponse;
 import com.financial.mockserver.mapper.MockRawFinancialMapper;
@@ -21,6 +23,7 @@ public class MockRawFinancialServiceImpl extends AbstractMockApiService implemen
     private static final String BANK_TRANSACTIONS_PATH = "/api/v1/accounts/{accountId}/transactions";
     private static final String CARDS_PATH = "/api/v1/cards";
     private static final String CARD_APPROVALS_PATH = "/api/v1/cards/{cardId}/approvals";
+    private static final String CARD_BILLS_PATH = "/api/v1/cards/{cardId}/bills";
 
     @Autowired
     private MockRawFinancialMapper rawFinancialMapper;
@@ -64,6 +67,22 @@ public class MockRawFinancialServiceImpl extends AbstractMockApiService implemen
                             rawFinancialMapper.findCardApprovals(ctx.getUser().getId(), cardId, yearMonth);
                     CardApprovalListResponse data = new CardApprovalListResponse(approvals);
                     return ApiEnvelope.of("SUCCESS", "카드 승인 내역 조회 성공", data, traceId, timestamp);
+                });
+    }
+
+    @Override
+    public MockApiResult getCardBills(
+            String scenarioKey,
+            String scenarioOverride,
+            Long cardId,
+            String billingMonth) {
+        String requestJson = buildRequestJson("cardId", cardId, "billingMonth", billingMonth);
+        return respond("GET", CARD_BILLS_PATH, scenarioKey, scenarioOverride, requestJson,
+                (ctx, traceId, timestamp) -> {
+                    List<CardBillResponse> bills =
+                            rawFinancialMapper.findCardBills(ctx.getUser().getId(), cardId, billingMonth);
+                    CardBillListResponse data = new CardBillListResponse(bills);
+                    return ApiEnvelope.of("SUCCESS", "Card bills fetched successfully", data, traceId, timestamp);
                 });
     }
 }

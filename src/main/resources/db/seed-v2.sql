@@ -33,6 +33,7 @@ INSERT INTO mock_api_endpoint (
   ('INTERNAL', 'GET', '/api/v1/accounts/{accountId}/transactions', 'bank_transaction_list', 'Raw bank deposit/withdrawal transactions'),
   ('INTERNAL', 'GET', '/api/v1/cards', 'card_list', 'Raw card list'),
   ('INTERNAL', 'GET', '/api/v1/cards/{cardId}/approvals', 'card_approval_list', 'Raw card approval list'),
+  ('INTERNAL', 'GET', '/api/v1/cards/{cardId}/bills', 'card_bill_list', 'Raw card bill list'),
   ('CODEF', 'POST', '/codef/v1/account/list', 'codef_account_list', 'Legacy CODEF-compatible account list'),
   ('CODEF', 'POST', '/codef/v1/account/balance', 'codef_balance', 'Legacy CODEF-compatible account balance')
 ON DUPLICATE KEY UPDATE

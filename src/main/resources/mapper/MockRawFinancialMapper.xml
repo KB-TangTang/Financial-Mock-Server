@@ -84,4 +84,33 @@
         ORDER BY a.approved_at DESC, a.id DESC
     </select>
 
+    <select id="findCardBills" resultType="com.financial.mockserver.dto.CardBillResponse">
+        SELECT
+            b.id AS billId,
+            c.id AS cardId,
+            i.institution_code AS institutionCode,
+            i.institution_name AS institutionName,
+            c.card_no_masked AS cardNoMasked,
+            c.product_name AS productName,
+            c.card_product_code AS cardProductCode,
+            DATE_FORMAT(b.billing_month, '%Y-%m') AS billingMonth,
+            DATE_FORMAT(b.due_date, '%Y-%m-%d') AS dueDate,
+            b.bill_status_code AS billStatusCode,
+            b.bill_status_name AS billStatusName,
+            b.total_amount AS totalAmount,
+            b.paid_amount AS paidAmount
+        FROM card_bill b
+        JOIN card c ON c.id = b.card_id
+        JOIN financial_institution i ON i.id = c.institution_id
+        WHERE c.user_id = #{userId}
+          AND c.id = #{cardId}
+          AND c.card_status_code = '01'
+          AND i.is_supported = 1
+          AND b.billing_month <= CURRENT_DATE
+        <if test="billingMonth != null and billingMonth != ''">
+            AND DATE_FORMAT(b.billing_month, '%Y-%m') = #{billingMonth}
+        </if>
+        ORDER BY b.billing_month DESC, b.id DESC
+    </select>
+
 </mapper>

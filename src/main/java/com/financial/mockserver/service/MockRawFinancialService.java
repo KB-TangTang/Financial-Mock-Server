@@ -16,4 +16,10 @@ public interface MockRawFinancialService {
             String scenarioOverride,
             Long cardId,
             String yearMonth);
+
+    MockApiResult getCardBills(
+            String scenarioKey,
+            String scenarioOverride,
+            Long cardId,
+            String billingMonth);
 }
