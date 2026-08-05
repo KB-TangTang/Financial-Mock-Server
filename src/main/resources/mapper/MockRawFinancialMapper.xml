@@ -32,6 +32,36 @@
         ORDER BY t.transacted_at DESC, t.id DESC
     </select>
 
+    <select id="findDepositTransactions" resultType="com.financial.mockserver.dto.DepositTransactionResponse">
+        SELECT
+            t.id AS transactionId,
+            d.id AS depositAccountId,
+            i.institution_code AS institutionCode,
+            i.institution_name AS institutionName,
+            d.account_no_masked AS accountNoMasked,
+            d.product_name AS productName,
+            d.deposit_type_code AS depositTypeCode,
+            DATE_FORMAT(t.transacted_at, '%Y-%m-%dT%H:%i:%s+09:00') AS transactedAt,
+            t.trans_type_code AS transTypeCode,
+            t.trans_type_name AS transTypeName,
+            t.amount AS amount,
+            t.balance_after AS balanceAfter,
+            t.description AS description,
+            d.currency AS currency
+        FROM deposit_transaction t
+        JOIN deposit_account d ON d.id = t.deposit_account_id
+        JOIN financial_institution i ON i.id = d.institution_id
+        WHERE d.user_id = #{userId}
+          AND d.id = #{depositAccountId}
+          AND d.account_status_code = '01'
+          AND i.is_supported = 1
+          AND t.transacted_at <= CURRENT_TIMESTAMP
+        <if test="yearMonth != null and yearMonth != ''">
+            AND DATE_FORMAT(t.transacted_at, '%Y-%m') = #{yearMonth}
+        </if>
+        ORDER BY t.transacted_at DESC, t.id DESC
+    </select>
+
     <select id="findCards" resultType="com.financial.mockserver.dto.CardResponse">
         SELECT
             c.id AS cardId,

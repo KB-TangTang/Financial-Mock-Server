@@ -31,6 +31,7 @@ INSERT INTO mock_api_endpoint (
   ('INTERNAL', 'GET', '/api/v1/assets/payMoney', 'asset_pay_money_list', 'Pay money wallet assets'),
   ('INTERNAL', 'GET', '/api/v1/assets/loans', 'asset_loan_list', 'Raw loan account assets'),
   ('INTERNAL', 'GET', '/api/v1/accounts/{accountId}/transactions', 'bank_transaction_list', 'Raw bank deposit/withdrawal transactions'),
+  ('INTERNAL', 'GET', '/api/v1/deposits/{depositAccountId}/transactions', 'deposit_transaction_list', 'Raw deposit and savings account transactions'),
   ('INTERNAL', 'GET', '/api/v1/cards', 'card_list', 'Raw card list'),
   ('INTERNAL', 'GET', '/api/v1/cards/{cardId}/approvals', 'card_approval_list', 'Raw card approval list'),
   ('INTERNAL', 'GET', '/api/v1/cards/{cardId}/bills', 'card_bill_list', 'Raw card bill list'),

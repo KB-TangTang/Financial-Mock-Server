@@ -4,6 +4,7 @@ import com.financial.mockserver.dto.BankTransactionResponse;
 import com.financial.mockserver.dto.CardApprovalResponse;
 import com.financial.mockserver.dto.CardBillResponse;
 import com.financial.mockserver.dto.CardResponse;
+import com.financial.mockserver.dto.DepositTransactionResponse;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -25,4 +26,9 @@ public interface MockRawFinancialMapper {
             @Param("userId") Long userId,
             @Param("cardId") Long cardId,
             @Param("billingMonth") String billingMonth);
+
+    List<DepositTransactionResponse> findDepositTransactions(
+            @Param("userId") Long userId,
+            @Param("depositAccountId") Long depositAccountId,
+            @Param("yearMonth") String yearMonth);
 }
