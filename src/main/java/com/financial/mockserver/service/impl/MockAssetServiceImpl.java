@@ -3,6 +3,8 @@ package com.financial.mockserver.service.impl;
 import com.financial.mockserver.dto.AccountListResponse;
 import com.financial.mockserver.dto.AccountResponse;
 import com.financial.mockserver.dto.ApiEnvelope;
+import com.financial.mockserver.dto.DepositListResponse;
+import com.financial.mockserver.dto.DepositResponse;
 import com.financial.mockserver.dto.LoanListResponse;
 import com.financial.mockserver.dto.LoanResponse;
 import com.financial.mockserver.dto.PayMoneyListResponse;
@@ -33,6 +35,21 @@ public class MockAssetServiceImpl extends AbstractMockApiService implements Mock
                     List<AccountResponse> accounts = assetMapper.findBankAccounts(ctx.getUser().getId());
                     AccountListResponse data = new AccountListResponse(accounts);
                     return ApiEnvelope.of("SUCCESS", "계좌 목록 조회 성공", data, traceId, timestamp);
+                });
+    }
+
+    @Override
+    public MockApiResult getDeposits(String scenarioKey, String scenarioOverride) {
+        return respond("GET", "/api/v1/assets/deposits", scenarioKey, scenarioOverride, null,
+                (ctx, traceId, timestamp) -> {
+                    Long userId = ctx.getUser().getId();
+                    List<DepositResponse> deposits = assetMapper.findDeposits(userId);
+                    BigDecimal totalPrincipal = sum(deposits, DepositResponse::getPrincipal);
+                    BigDecimal totalBalance = sum(deposits, DepositResponse::getBalance);
+                    String lastSyncAt = deposits.isEmpty() ? null : assetMapper.findDepositLastSyncAt(userId);
+                    DepositListResponse data = new DepositListResponse(
+                            deposits, totalPrincipal, totalBalance, lastSyncAt);
+                    return ApiEnvelope.of("SUCCESS", "Deposit assets fetched successfully", data, traceId, timestamp);
                 });
     }
 

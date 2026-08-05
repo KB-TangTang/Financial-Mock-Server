@@ -38,6 +38,18 @@ public class MockAssetController {
         return toResponseEntity(result);
     }
 
+    @GetMapping("/deposits")
+    public ResponseEntity<Object> getDeposits(
+            @RequestParam(required = false) String scenarioKey,
+            @RequestHeader(value = "X-Scenario-Key", required = false) String scenarioKeyHeader,
+            @RequestParam(required = false) String scenario,
+            @RequestHeader(value = "X-Mock-Scenario", required = false) String scenarioHeader) {
+        MockApiResult result = assetService.getDeposits(
+                MockResponseSupport.firstNonBlank(scenarioKey, scenarioKeyHeader),
+                MockResponseSupport.firstNonBlank(scenario, scenarioHeader));
+        return toResponseEntity(result);
+    }
+
     @GetMapping("/stocks")
     public ResponseEntity<Object> getStocks(
             @RequestParam(required = false) String scenarioKey,

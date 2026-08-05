@@ -25,6 +25,38 @@
         ORDER BY a.id
     </select>
 
+    <select id="findDeposits" resultType="com.financial.mockserver.dto.DepositResponse">
+        SELECT
+            d.id AS depositAccountId,
+            i.institution_code AS institutionCode,
+            i.institution_name AS institutionName,
+            d.deposit_type_code AS depositTypeCode,
+            d.account_status_code AS accountStatusCode,
+            d.product_name AS productName,
+            d.account_no_masked AS accountNoMasked,
+            d.currency AS currency,
+            d.principal AS principal,
+            d.balance AS balance,
+            d.interest_rate AS interestRate,
+            DATE_FORMAT(d.opened_at, '%Y-%m-%d') AS openedAt,
+            DATE_FORMAT(d.maturity_date, '%Y-%m-%d') AS maturityDate,
+            DATE_FORMAT(d.last_synced_at, '%Y-%m-%dT%H:%i:%s+09:00') AS lastSyncAt
+        FROM deposit_account d
+        JOIN financial_institution i ON i.id = d.institution_id
+        WHERE d.user_id = #{userId}
+          AND d.account_status_code = '01'
+          AND i.is_supported = 1
+        ORDER BY d.id
+    </select>
+
+    <select id="findDepositLastSyncAt" resultType="java.lang.String">
+        SELECT DATE_FORMAT(MAX(d.last_synced_at), '%Y-%m-%dT%H:%i:%s+09:00')
+        FROM deposit_account d
+        JOIN financial_institution i ON i.id = d.institution_id
+        WHERE d.user_id = #{userId}
+          AND i.is_supported = 1
+    </select>
+
     <select id="findStockAccountSummary" resultType="com.financial.mockserver.dto.StockAssetResponse">
         SELECT
             a.id AS accountId,

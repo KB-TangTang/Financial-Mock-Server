@@ -2,6 +2,7 @@ package com.financial.mockserver.mapper;
 
 import com.financial.mockserver.dto.AccountResponse;
 import com.financial.mockserver.dto.CodefBalanceResponse;
+import com.financial.mockserver.dto.DepositResponse;
 import com.financial.mockserver.dto.LoanResponse;
 import com.financial.mockserver.dto.PayMoneyResponse;
 import com.financial.mockserver.dto.StockAssetResponse;
@@ -12,6 +13,10 @@ import java.util.List;
 
 public interface MockAssetMapper {
     List<AccountResponse> findBankAccounts(@Param("userId") Long userId);
+
+    List<DepositResponse> findDeposits(@Param("userId") Long userId);
+
+    String findDepositLastSyncAt(@Param("userId") Long userId);
 
     StockAssetResponse findStockAccountSummary(@Param("userId") Long userId);
 

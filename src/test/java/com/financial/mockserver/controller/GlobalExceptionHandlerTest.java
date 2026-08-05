@@ -52,6 +52,11 @@ class GlobalExceptionHandlerTest {
             }
 
             @Override
+            public MockApiResult getDeposits(String scenarioKey, String scenarioOverride) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
             public MockApiResult getStocks(String scenarioKey, String scenarioOverride) {
                 throw new UnsupportedOperationException();
             }

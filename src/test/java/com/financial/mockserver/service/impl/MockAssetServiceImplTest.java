@@ -8,6 +8,8 @@ import com.financial.mockserver.domain.ResolvedScenario;
 import com.financial.mockserver.dto.AccountResponse;
 import com.financial.mockserver.dto.ApiEnvelope;
 import com.financial.mockserver.dto.CodefBalanceResponse;
+import com.financial.mockserver.dto.DepositListResponse;
+import com.financial.mockserver.dto.DepositResponse;
 import com.financial.mockserver.dto.LoanListResponse;
 import com.financial.mockserver.dto.LoanResponse;
 import com.financial.mockserver.dto.PayMoneyListResponse;
@@ -94,6 +96,21 @@ class MockAssetServiceImplTest {
         LoanListResponse data = extractData(result, LoanListResponse.class);
         assertEquals(0, new BigDecimal("25000000").compareTo(data.getTotalLoanAmount()));
         assertEquals(0, new BigDecimal("19200000").compareTo(data.getTotalBalance()));
+        assertEquals("2026-07-31T10:30:00+09:00", data.getLastSyncAt());
+    }
+
+    @Test
+    void getDeposits_sumsPrincipalAndBalance() {
+        assetMapper.deposits = Arrays.asList(
+                deposit(1L, "5000000", "5032000"),
+                deposit(2L, "3000000", "3015000"));
+        assetMapper.depositLastSyncAt = "2026-07-31T10:30:00+09:00";
+
+        MockApiResult result = service.getDeposits("demo-normal-user", null);
+
+        DepositListResponse data = extractData(result, DepositListResponse.class);
+        assertEquals(0, new BigDecimal("8000000").compareTo(data.getTotalPrincipal()));
+        assertEquals(0, new BigDecimal("8047000").compareTo(data.getTotalBalance()));
         assertEquals("2026-07-31T10:30:00+09:00", data.getLastSyncAt());
     }
 
@@ -188,6 +205,14 @@ class MockAssetServiceImplTest {
         return l;
     }
 
+    private static DepositResponse deposit(Long id, String principal, String balance) {
+        DepositResponse d = new DepositResponse();
+        d.setDepositAccountId(id);
+        d.setPrincipal(new BigDecimal(principal));
+        d.setBalance(new BigDecimal(balance));
+        return d;
+    }
+
     private static PayMoneyResponse payMoney(Long id, String balance, String pointAmount) {
         PayMoneyResponse p = new PayMoneyResponse();
         p.setPayMoneyId(id);
@@ -201,6 +226,8 @@ class MockAssetServiceImplTest {
      */
     private static class StubAssetMapper implements MockAssetMapper {
         List<AccountResponse> bankAccounts = Collections.emptyList();
+        List<DepositResponse> deposits = Collections.emptyList();
+        String depositLastSyncAt;
         StockAssetResponse stockSummary;
         List<StockHoldingResponse> stockHoldings = Collections.emptyList();
         List<LoanResponse> loans = Collections.emptyList();
@@ -213,6 +240,16 @@ class MockAssetServiceImplTest {
         @Override
         public List<AccountResponse> findBankAccounts(Long userId) {
             return bankAccounts;
+        }
+
+        @Override
+        public List<DepositResponse> findDeposits(Long userId) {
+            return deposits;
+        }
+
+        @Override
+        public String findDepositLastSyncAt(Long userId) {
+            return depositLastSyncAt;
         }
 
         @Override

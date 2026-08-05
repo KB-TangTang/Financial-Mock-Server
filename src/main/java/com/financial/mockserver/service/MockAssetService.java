@@ -9,6 +9,8 @@ public interface MockAssetService {
 
     MockApiResult getBankAccounts(String scenarioKey, String scenarioOverride);
 
+    MockApiResult getDeposits(String scenarioKey, String scenarioOverride);
+
     MockApiResult getStocks(String scenarioKey, String scenarioOverride);
 
     MockApiResult getLoans(String scenarioKey, String scenarioOverride);
