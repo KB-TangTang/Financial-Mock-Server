@@ -34,6 +34,7 @@ INSERT INTO mock_api_endpoint (
   ('INTERNAL', 'GET', '/api/v1/deposits/{depositAccountId}/transactions', 'deposit_transaction_list', 'Raw deposit and savings account transactions'),
   ('INTERNAL', 'GET', '/api/v1/loans/{loanId}/transactions', 'loan_transaction_list', 'Raw loan repayment transactions'),
   ('INTERNAL', 'GET', '/api/v1/securities/{accountId}/transactions', 'securities_transaction_list', 'Raw securities transactions'),
+  ('INTERNAL', 'GET', '/api/v1/pay-money/{payMoneyId}/transactions', 'pay_money_transaction_list', 'Raw pay money transactions'),
   ('INTERNAL', 'GET', '/api/v1/cards', 'card_list', 'Raw card list'),
   ('INTERNAL', 'GET', '/api/v1/cards/{cardId}/approvals', 'card_approval_list', 'Raw card approval list'),
   ('INTERNAL', 'GET', '/api/v1/cards/{cardId}/bills', 'card_bill_list', 'Raw card bill list'),
@@ -240,7 +241,7 @@ INSERT INTO pay_money_transaction (
   merchant_name, description, raw_json
 )
 SELECT id, 'PAY-20260710-001', '2026-07-10 08:30:00', '01',
-       'Charge', 100000.00, 100000.00, 0.00, 1240.00,
+       'Charge', 100000.00, 100000.00, NULL, NULL,
        NULL, 'Pay money charge',
        JSON_OBJECT('trType', '01', 'providerCode', provider_code, 'walletId', wallet_id)
 FROM pay_money
@@ -264,7 +265,7 @@ INSERT INTO pay_money_transaction (
   merchant_name, description, raw_json
 )
 SELECT id, 'PAY-20260720-001', '2026-07-20 12:10:00', '02',
-       'Payment', -16500.00, 83500.00, -260.00, 980.00,
+       'Payment', -16500.00, 83500.00, NULL, NULL,
        'Mock Coffee', 'Pay money payment',
        JSON_OBJECT('trType', '02', 'providerCode', provider_code, 'walletId', wallet_id, 'merchantName', 'Mock Coffee')
 FROM pay_money
