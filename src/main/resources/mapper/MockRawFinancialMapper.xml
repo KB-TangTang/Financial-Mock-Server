@@ -127,6 +127,38 @@
         ORDER BY t.transacted_at DESC, t.id DESC
     </select>
 
+    <select id="findPayMoneyTransactions" resultType="com.financial.mockserver.dto.PayMoneyTransactionResponse">
+        SELECT
+            t.id AS transactionId,
+            p.id AS payMoneyId,
+            p.provider_code AS providerCode,
+            p.provider_name AS providerName,
+            i.institution_name AS institutionName,
+            p.wallet_id AS walletId,
+            p.wallet_name AS walletName,
+            DATE_FORMAT(t.transacted_at, '%Y-%m-%dT%H:%i:%s+09:00') AS transactedAt,
+            t.trans_type_code AS transTypeCode,
+            t.trans_type_name AS transTypeName,
+            t.amount AS amount,
+            t.balance_after AS balanceAfter,
+            t.point_amount AS pointAmount,
+            t.point_balance_after AS pointBalanceAfter,
+            t.merchant_name AS merchantName,
+            t.description AS description,
+            p.currency AS currency
+        FROM pay_money_transaction t
+        JOIN pay_money p ON p.id = t.pay_money_id
+        JOIN financial_institution i ON i.id = p.institution_id
+        WHERE p.user_id = #{userId}
+          AND p.id = #{payMoneyId}
+          AND i.is_supported = 1
+          AND t.transacted_at <= CURRENT_TIMESTAMP
+        <if test="yearMonth != null and yearMonth != ''">
+            AND DATE_FORMAT(t.transacted_at, '%Y-%m') = #{yearMonth}
+        </if>
+        ORDER BY t.transacted_at DESC, t.id DESC
+    </select>
+
     <select id="findCards" resultType="com.financial.mockserver.dto.CardResponse">
         SELECT
             c.id AS cardId,

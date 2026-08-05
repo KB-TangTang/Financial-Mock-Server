@@ -13,6 +13,8 @@ import com.financial.mockserver.dto.DepositTransactionListResponse;
 import com.financial.mockserver.dto.DepositTransactionResponse;
 import com.financial.mockserver.dto.LoanTransactionListResponse;
 import com.financial.mockserver.dto.LoanTransactionResponse;
+import com.financial.mockserver.dto.PayMoneyTransactionListResponse;
+import com.financial.mockserver.dto.PayMoneyTransactionResponse;
 import com.financial.mockserver.dto.SecuritiesTransactionListResponse;
 import com.financial.mockserver.dto.SecuritiesTransactionResponse;
 import com.financial.mockserver.mapper.MockRawFinancialMapper;
@@ -30,6 +32,7 @@ public class MockRawFinancialServiceImpl extends AbstractMockApiService implemen
     private static final String DEPOSIT_TRANSACTIONS_PATH = "/api/v1/deposits/{depositAccountId}/transactions";
     private static final String LOAN_TRANSACTIONS_PATH = "/api/v1/loans/{loanId}/transactions";
     private static final String SECURITIES_TRANSACTIONS_PATH = "/api/v1/securities/{accountId}/transactions";
+    private static final String PAY_MONEY_TRANSACTIONS_PATH = "/api/v1/pay-money/{payMoneyId}/transactions";
     private static final String CARDS_PATH = "/api/v1/cards";
     private static final String CARD_APPROVALS_PATH = "/api/v1/cards/{cardId}/approvals";
     private static final String CARD_BILLS_PATH = "/api/v1/cards/{cardId}/bills";
@@ -102,6 +105,24 @@ public class MockRawFinancialServiceImpl extends AbstractMockApiService implemen
                                     ctx.getUser().getId(), accountId, yearMonth);
                     SecuritiesTransactionListResponse data = new SecuritiesTransactionListResponse(transactions);
                     return ApiEnvelope.of("SUCCESS", "Securities transactions fetched successfully",
+                            data, traceId, timestamp);
+                });
+    }
+
+    @Override
+    public MockApiResult getPayMoneyTransactions(
+            String scenarioKey,
+            String scenarioOverride,
+            Long payMoneyId,
+            String yearMonth) {
+        String requestJson = buildRequestJson("payMoneyId", payMoneyId, "yearMonth", yearMonth);
+        return respond("GET", PAY_MONEY_TRANSACTIONS_PATH, scenarioKey, scenarioOverride, requestJson,
+                (ctx, traceId, timestamp) -> {
+                    List<PayMoneyTransactionResponse> transactions =
+                            rawFinancialMapper.findPayMoneyTransactions(
+                                    ctx.getUser().getId(), payMoneyId, yearMonth);
+                    PayMoneyTransactionListResponse data = new PayMoneyTransactionListResponse(transactions);
+                    return ApiEnvelope.of("SUCCESS", "Pay money transactions fetched successfully",
                             data, traceId, timestamp);
                 });
     }
