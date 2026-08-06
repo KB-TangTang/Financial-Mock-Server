@@ -25,7 +25,7 @@
         WHERE a.user_id = #{userId}
           AND a.id = #{accountId}
           AND i.is_supported = 1
-          AND t.transacted_at <= CURRENT_TIMESTAMP
+          AND t.transacted_at &lt;= CURRENT_TIMESTAMP
         <if test="yearMonth != null and yearMonth != ''">
             AND DATE_FORMAT(t.transacted_at, '%Y-%m') = #{yearMonth}
         </if>
@@ -55,7 +55,7 @@
           AND d.id = #{depositAccountId}
           AND d.account_status_code = '01'
           AND i.is_supported = 1
-          AND t.transacted_at <= CURRENT_TIMESTAMP
+          AND t.transacted_at &lt;= CURRENT_TIMESTAMP
         <if test="yearMonth != null and yearMonth != ''">
             AND DATE_FORMAT(t.transacted_at, '%Y-%m') = #{yearMonth}
         </if>
@@ -87,7 +87,7 @@
           AND l.id = #{loanId}
           AND l.account_status_code = '01'
           AND i.is_supported = 1
-          AND t.transacted_at <= CURRENT_TIMESTAMP
+          AND t.transacted_at &lt;= CURRENT_TIMESTAMP
         <if test="yearMonth != null and yearMonth != ''">
             AND DATE_FORMAT(t.transacted_at, '%Y-%m') = #{yearMonth}
         </if>
@@ -120,7 +120,7 @@
           AND a.id = #{accountId}
           AND a.account_status_code = '01'
           AND i.is_supported = 1
-          AND t.transacted_at <= CURRENT_TIMESTAMP
+          AND t.transacted_at &lt;= CURRENT_TIMESTAMP
         <if test="yearMonth != null and yearMonth != ''">
             AND DATE_FORMAT(t.transacted_at, '%Y-%m') = #{yearMonth}
         </if>
@@ -152,7 +152,7 @@
         WHERE p.user_id = #{userId}
           AND p.id = #{payMoneyId}
           AND i.is_supported = 1
-          AND t.transacted_at <= CURRENT_TIMESTAMP
+          AND t.transacted_at &lt;= CURRENT_TIMESTAMP
         <if test="yearMonth != null and yearMonth != ''">
             AND DATE_FORMAT(t.transacted_at, '%Y-%m') = #{yearMonth}
         </if>
@@ -204,7 +204,7 @@
         WHERE c.user_id = #{userId}
           AND c.id = #{cardId}
           AND i.is_supported = 1
-          AND a.approved_at <= CURRENT_TIMESTAMP
+          AND a.approved_at &lt;= CURRENT_TIMESTAMP
         <if test="yearMonth != null and yearMonth != ''">
             AND DATE_FORMAT(a.approved_at, '%Y-%m') = #{yearMonth}
         </if>
@@ -233,7 +233,7 @@
           AND c.id = #{cardId}
           AND c.card_status_code = '01'
           AND i.is_supported = 1
-          AND b.billing_month <= CURRENT_DATE
+          AND b.billing_month &lt;= CURRENT_DATE
         <if test="billingMonth != null and billingMonth != ''">
             AND DATE_FORMAT(b.billing_month, '%Y-%m') = #{billingMonth}
         </if>
