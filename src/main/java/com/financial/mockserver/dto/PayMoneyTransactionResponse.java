@@ -23,7 +23,6 @@ public class PayMoneyTransactionResponse {
     private String merchantName;
     private String merchantCategoryCode;
     private String merchantCategoryName;
-    private String spendingCategoryCode;
     private String description;
     private String currency;
 }

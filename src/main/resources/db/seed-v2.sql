@@ -180,11 +180,11 @@ ON DUPLICATE KEY UPDATE
 
 INSERT INTO card_approval (
   card_id, approval_no, approved_at, approval_type_code, approval_type_name,
-  merchant_name, merchant_business_no, merchant_category_code, merchant_category_name, spending_category_code,
+  merchant_name, merchant_business_no, merchant_category_code, merchant_category_name,
   approved_amount, currency, description, raw_json
 )
 SELECT id, 'APV-20260730-001', '2026-07-30 12:35:00', '01', 'Approved',
-       'Coupang', '120-88-00767', '5310', 'Discount store', 'SHOPPING', 32900.00, 'KRW', 'One-time card approval',
+       'Coupang', '120-88-00767', '5310', 'Discount store', 32900.00, 'KRW', 'One-time card approval',
        JSON_OBJECT('resApprovalType', '01', 'resMemberStoreName', 'Coupang', 'resMemberStoreTypeCode', '5310', 'resMemberStoreTypeName', 'Discount store')
 FROM card
 WHERE card_no_masked = '5555-****-****-1234'
@@ -195,7 +195,6 @@ ON DUPLICATE KEY UPDATE
   merchant_business_no = VALUES(merchant_business_no),
   merchant_category_code = VALUES(merchant_category_code),
   merchant_category_name = VALUES(merchant_category_name),
-  spending_category_code = VALUES(spending_category_code),
   approved_amount = VALUES(approved_amount),
   description = VALUES(description),
   raw_json = VALUES(raw_json),
@@ -242,11 +241,11 @@ ON DUPLICATE KEY UPDATE
 INSERT INTO pay_money_transaction (
   pay_money_id, original_transaction_id, transacted_at, trans_type_code,
   trans_type_name, amount, balance_after, point_amount, point_balance_after,
-  merchant_name, merchant_category_code, merchant_category_name, spending_category_code, description, raw_json
+  merchant_name, merchant_category_code, merchant_category_name, description, raw_json
 )
 SELECT id, 'PAY-20260710-001', '2026-07-10 08:30:00', '01',
        'Charge', 100000.00, 100000.00, NULL, NULL,
-        NULL, NULL, NULL, NULL, 'Pay money charge',
+        NULL, NULL, NULL, 'Pay money charge',
        JSON_OBJECT('trType', '01', 'providerCode', provider_code, 'walletId', wallet_id)
 FROM pay_money
 WHERE provider_code = 'KB_PAY'
@@ -261,7 +260,6 @@ ON DUPLICATE KEY UPDATE
   merchant_name = VALUES(merchant_name),
   merchant_category_code = VALUES(merchant_category_code),
   merchant_category_name = VALUES(merchant_category_name),
-  spending_category_code = VALUES(spending_category_code),
   description = VALUES(description),
   raw_json = VALUES(raw_json),
   updated_at = CURRENT_TIMESTAMP;
@@ -269,11 +267,11 @@ ON DUPLICATE KEY UPDATE
 INSERT INTO pay_money_transaction (
   pay_money_id, original_transaction_id, transacted_at, trans_type_code,
   trans_type_name, amount, balance_after, point_amount, point_balance_after,
-  merchant_name, merchant_category_code, merchant_category_name, spending_category_code, description, raw_json
+  merchant_name, merchant_category_code, merchant_category_name, description, raw_json
 )
 SELECT id, 'PAY-20260720-001', '2026-07-20 12:10:00', '02',
        'Payment', -16500.00, 83500.00, NULL, NULL,
-        'Mock Coffee', '5814', 'Coffee shop', 'CAFE', 'Pay money payment',
+        'Mock Coffee', '5814', 'Coffee shop', 'Pay money payment',
         JSON_OBJECT('trType', '02', 'providerCode', provider_code, 'walletId', wallet_id, 'merchantName', 'Mock Coffee', 'merchantCategoryCode', '5814', 'merchantCategoryName', 'Coffee shop')
 FROM pay_money
 WHERE provider_code = 'KB_PAY'
@@ -288,7 +286,6 @@ ON DUPLICATE KEY UPDATE
   merchant_name = VALUES(merchant_name),
   merchant_category_code = VALUES(merchant_category_code),
   merchant_category_name = VALUES(merchant_category_name),
-  spending_category_code = VALUES(spending_category_code),
   description = VALUES(description),
   raw_json = VALUES(raw_json),
   updated_at = CURRENT_TIMESTAMP;
