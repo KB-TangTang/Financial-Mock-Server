@@ -572,7 +572,7 @@ SELECT u.id,i.id,'301-***-INV2002','KB 증권 투자계좌','4001','01','KRW',0.
 ON DUPLICATE KEY UPDATE cash_balance=VALUES(cash_balance),valuation_amount=VALUES(valuation_amount),last_synced_at=VALUES(last_synced_at),raw_json=VALUES(raw_json),updated_at=CURRENT_TIMESTAMP;
 
 INSERT INTO bank_transaction (bank_account_id,original_transaction_id,transacted_at,trans_type_code,trans_type_name,amount,balance_after,description,raw_json)
-SELECT b.id,x.tid,x.at,x.code,x.type,x.amount,x.bal,x.descr,JSON_OBJECT('correlationId',x.corr,'challengeEligible',CAST(x.challenge AS UNSIGNED),'challengeCategory',x.category,'merchantName',x.merchant,'mcc',x.mcc)
+SELECT b.id,x.tid,x.at,x.code,x.type,x.amount,x.bal,x.descr,JSON_OBJECT('correlationId',x.corr,'challengeEligible',IF(x.challenge=1, TRUE, FALSE),'challengeCategory',x.category,'merchantName',x.merchant,'mcc',x.mcc)
 FROM bank_account b JOIN mock_user u ON u.id=b.user_id
 JOIN (
  SELECT 'N2-B-001' tid,'2026-04-01 09:00:00' at,'01' code,'입금' type,3000000 amount,3000000 bal,'기초 잔액 이관' descr,'N2-OPEN' corr,0 challenge,NULL category,NULL merchant,NULL mcc UNION ALL
@@ -667,7 +667,7 @@ WHERE u.scenario_key='demo-normal-user2' AND c.card_no_masked='9490-****-****-22
 ON DUPLICATE KEY UPDATE due_date=VALUES(due_date),bill_status_code=VALUES(bill_status_code),bill_status_name=VALUES(bill_status_name),total_amount=VALUES(total_amount),paid_amount=VALUES(paid_amount),raw_json=VALUES(raw_json),updated_at=CURRENT_TIMESTAMP;
 
 INSERT INTO pay_money_transaction (pay_money_id,original_transaction_id,transacted_at,trans_type_code,trans_type_name,amount,balance_after,point_amount,point_balance_after,merchant_name,merchant_category_code,merchant_category_name,description,raw_json)
-SELECT p.id,x.id,x.at,x.code,x.type,x.amount,x.balance,x.points,x.pointBalance,x.merchant,x.mcc,x.category,x.merchant,JSON_OBJECT('correlationId',x.corr,'challengeEligible',CAST(x.challenge AS UNSIGNED),'challengeCategory',x.challengeCategory,'originalTransactionId',x.original)
+SELECT p.id,x.id,x.at,x.code,x.type,x.amount,x.balance,x.points,x.pointBalance,x.merchant,x.mcc,x.category,x.merchant,JSON_OBJECT('correlationId',x.corr,'challengeEligible',IF(x.challenge=1, TRUE, FALSE),'challengeCategory',x.challengeCategory,'originalTransactionId',x.original)
 FROM pay_money p JOIN mock_user u ON u.id=p.user_id JOIN (
  SELECT 'N2-P-04C' id,'2026-04-20 18:00:01' at,'01' code,'충전' type,100000 amount,100000 balance,NULL points,0 pointBalance,NULL merchant,NULL mcc,NULL category,'N2-PAY-04' corr,0 challenge,NULL challengeCategory,NULL original UNION ALL SELECT 'N2-P-04P','2026-04-21 12:00:00','02','결제',-100000,0,NULL,0,'맥도날드 역삼점','5814','패스트푸드','N2-P-04',1,'식비',NULL UNION ALL
  SELECT 'N2-P-06C','2026-06-12 18:00:01','01','충전',150000,150000,NULL,0,NULL,NULL,NULL,'N2-PAY-06',0,NULL,NULL UNION ALL SELECT 'N2-P-0615','2026-06-15 12:30:00','02','결제',-70000,80000,NULL,0,'배달의민족','5812','음식점','N2-PAY-0615',1,'식비',NULL UNION ALL SELECT 'N2-P-0619','2026-06-19 19:00:00','02','결제',-25000,55000,NULL,0,'올리브영 강남점','5977','화장품·생활용품','N2-PAY-0619',1,'생활용품',NULL UNION ALL SELECT 'N2-P-0626','2026-06-26 08:40:00','02','결제',-30000,25000,NULL,0,'스타벅스 강남역점','5814','카페','N2-PAY-0626',1,'카페',NULL UNION ALL SELECT 'N2-P-0627','2026-06-27 10:00:00','03','환불',10000,35000,500,500,'배달의민족','5812','음식점','N2-PAY-0615',1,'식비','N2-P-0615' UNION ALL
