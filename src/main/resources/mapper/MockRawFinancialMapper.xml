@@ -146,6 +146,7 @@
             t.merchant_name AS merchantName,
             t.merchant_category_code AS merchantCategoryCode,
             t.merchant_category_name AS merchantCategoryName,
+            t.spending_category_code AS spendingCategoryCode,
             t.description AS description,
             p.currency AS currency
         FROM pay_money_transaction t
@@ -198,6 +199,8 @@
             a.merchant_name AS merchantName,
             a.merchant_business_no AS merchantBusinessNo,
             a.merchant_category_code AS merchantCategoryCode,
+            a.merchant_category_name AS merchantCategoryName,
+            a.spending_category_code AS spendingCategoryCode,
             a.approved_amount AS approvedAmount,
             a.currency AS currency,
             a.description AS description
