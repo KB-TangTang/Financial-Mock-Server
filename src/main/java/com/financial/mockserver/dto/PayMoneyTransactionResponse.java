@@ -25,4 +25,5 @@ public class PayMoneyTransactionResponse {
     private String merchantCategoryName;
     private String description;
     private String currency;
+    private String rawJson;
 }
