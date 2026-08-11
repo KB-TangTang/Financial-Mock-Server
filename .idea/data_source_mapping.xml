@@ -3,6 +3,7 @@
   <component name="DataSourcePerFileMappings">
     <file url="file://$PROJECT_DIR$/src/main/resources/db/init.sql" value="c556b58a-4d00-4d9d-bac0-f90db364b581" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/schema-v2.sql" value="c556b58a-4d00-4d9d-bac0-f90db364b581" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/db/schema.sql" value="c556b58a-4d00-4d9d-bac0-f90db364b581" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/seed-v2.sql" value="c556b58a-4d00-4d9d-bac0-f90db364b581" />
   </component>
 </project>

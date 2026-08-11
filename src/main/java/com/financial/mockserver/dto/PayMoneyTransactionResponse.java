@@ -21,6 +21,8 @@ public class PayMoneyTransactionResponse {
     private BigDecimal pointAmount;
     private BigDecimal pointBalanceAfter;
     private String merchantName;
+    private String merchantCategoryCode;
+    private String merchantCategoryName;
     private String description;
     private String currency;
 }

@@ -19,6 +19,8 @@ public class CardApprovalResponse {
     private String approvalTypeName;
     private String merchantName;
     private String merchantBusinessNo;
+    private String merchantCategoryCode;
+    private String merchantCategoryName;
     private BigDecimal approvedAmount;
     private String currency;
     private String description;
