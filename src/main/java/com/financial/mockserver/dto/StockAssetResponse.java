@@ -18,6 +18,7 @@ public class StockAssetResponse {
     private String accountName;
     private String institutionName;
     private String currency;
+    private BigDecimal cashBalance;
     private BigDecimal totalPurchaseAmount;
     private BigDecimal totalMarketValue;
     private BigDecimal totalProfitLossAmount;
