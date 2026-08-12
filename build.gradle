@@ -30,10 +30,6 @@ dependencies {
     implementation "org.springframework:spring-webmvc:${springVersion}"
     implementation 'javax.inject:javax.inject:1'
 
-    // AOP
-    implementation 'org.aspectj:aspectjrt:1.9.20'
-    implementation 'org.aspectj:aspectjweaver:1.9.20'
-
     // JSP, SERVLET, JSTL
     implementation('javax.servlet:javax.servlet-api:4.0.1')
     compileOnly 'javax.servlet.jsp:jsp-api:2.1'
