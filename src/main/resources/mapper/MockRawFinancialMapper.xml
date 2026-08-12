@@ -18,7 +18,8 @@
             t.amount AS amount,
             t.balance_after AS balanceAfter,
             t.description AS description,
-            a.currency AS currency
+            a.currency AS currency,
+            t.raw_json AS rawJson
         FROM bank_transaction t
         JOIN bank_account a ON a.id = t.bank_account_id
         JOIN financial_institution i ON i.id = a.institution_id
@@ -47,7 +48,8 @@
             t.amount AS amount,
             t.balance_after AS balanceAfter,
             t.description AS description,
-            d.currency AS currency
+            d.currency AS currency,
+            t.raw_json AS rawJson
         FROM deposit_transaction t
         JOIN deposit_account d ON d.id = t.deposit_account_id
         JOIN financial_institution i ON i.id = d.institution_id
@@ -79,7 +81,8 @@
             t.interest_amount AS interestAmount,
             t.balance_after AS balanceAfter,
             t.description AS description,
-            l.currency AS currency
+            l.currency AS currency,
+            t.raw_json AS rawJson
         FROM loan_transaction t
         JOIN loan_account l ON l.id = t.loan_account_id
         JOIN financial_institution i ON i.id = l.institution_id
@@ -147,7 +150,8 @@
             t.merchant_category_code AS merchantCategoryCode,
             t.merchant_category_name AS merchantCategoryName,
             t.description AS description,
-            p.currency AS currency
+            p.currency AS currency,
+            t.raw_json AS rawJson
         FROM pay_money_transaction t
         JOIN pay_money p ON p.id = t.pay_money_id
         JOIN financial_institution i ON i.id = p.institution_id
@@ -201,7 +205,8 @@
             a.merchant_category_name AS merchantCategoryName,
             a.approved_amount AS approvedAmount,
             a.currency AS currency,
-            a.description AS description
+            a.description AS description,
+            a.raw_json AS rawJson
         FROM card_approval a
         JOIN card c ON c.id = a.card_id
         JOIN financial_institution i ON i.id = c.institution_id

@@ -20,4 +20,5 @@ public class DepositTransactionResponse {
     private BigDecimal balanceAfter;
     private String description;
     private String currency;
+    private String rawJson;
 }

@@ -24,4 +24,5 @@ public class CardApprovalResponse {
     private BigDecimal approvedAmount;
     private String currency;
     private String description;
+    private String rawJson;
 }

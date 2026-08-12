@@ -63,6 +63,7 @@
             a.product_name AS accountName,
             i.institution_name AS institutionName,
             a.currency AS currency,
+            a.cash_balance AS cashBalance,
             DATE_FORMAT(a.last_synced_at, '%Y-%m-%dT%H:%i:%s+09:00') AS lastSyncAt
         FROM securities_account a
         JOIN financial_institution i ON i.id = a.institution_id
