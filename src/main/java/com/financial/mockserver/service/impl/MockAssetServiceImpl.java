@@ -111,7 +111,7 @@ public class MockAssetServiceImpl extends AbstractMockApiService implements Mock
     }
 
     private StockAssetResponse emptyStockAsset() {
-        return new StockAssetResponse(null, null, null, "KRW", BigDecimal.ZERO,
+        return new StockAssetResponse(null, null, null, null, null, "KRW", BigDecimal.ZERO,
                 BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO,
                 Collections.emptyList(), null);
     }

@@ -22,7 +22,43 @@
         WHERE a.user_id = #{userId}
           AND a.account_status_code = '01'
           AND i.is_supported = 1
-        ORDER BY a.id
+        UNION ALL
+        SELECT
+            a.id AS accountId,
+            i.institution_code AS institutionCode,
+            i.institution_name AS institutionName,
+            a.account_type_code AS accountTypeCode,
+            a.account_status_code AS accountStatusCode,
+            a.product_name AS productName,
+            a.account_no_masked AS accountNoMasked,
+            a.currency AS currency,
+            a.cash_balance AS balance,
+            a.cash_balance AS availableAmount,
+            DATE_FORMAT(a.last_synced_at, '%Y-%m-%dT%H:%i:%s+09:00') AS lastSyncAt
+        FROM securities_account a
+        JOIN financial_institution i ON i.id = a.institution_id
+        WHERE a.user_id = #{userId}
+          AND a.account_status_code = '01'
+          AND i.is_supported = 1
+        UNION ALL
+        SELECT
+            a.id AS accountId,
+            i.institution_code AS institutionCode,
+            i.institution_name AS institutionName,
+            a.deposit_type_code AS accountTypeCode,
+            a.account_status_code AS accountStatusCode,
+            a.product_name AS productName,
+            a.account_no_masked AS accountNoMasked,
+            a.currency AS currency,
+            a.balance AS balance,
+            a.balance AS availableAmount,
+            DATE_FORMAT(a.last_synced_at, '%Y-%m-%dT%H:%i:%s+09:00') AS lastSyncAt
+        FROM deposit_account a
+        JOIN financial_institution i ON i.id = a.institution_id
+        WHERE a.user_id = #{userId}
+          AND a.account_status_code = '01'
+          AND i.is_supported = 1
+        ORDER BY accountId
     </select>
 
     <select id="findDeposits" resultType="com.financial.mockserver.dto.DepositResponse">
@@ -61,7 +97,9 @@
         SELECT
             a.id AS accountId,
             a.product_name AS accountName,
+            i.institution_code AS institutionCode,
             i.institution_name AS institutionName,
+            a.account_no_masked AS accountNoMasked,
             a.currency AS currency,
             a.cash_balance AS cashBalance,
             DATE_FORMAT(a.last_synced_at, '%Y-%m-%dT%H:%i:%s+09:00') AS lastSyncAt

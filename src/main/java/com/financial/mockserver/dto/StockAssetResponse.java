@@ -16,7 +16,9 @@ import java.util.List;
 public class StockAssetResponse {
     private Long accountId;
     private String accountName;
+    private String institutionCode;
     private String institutionName;
+    private String accountNoMasked;
     private String currency;
     private BigDecimal cashBalance;
     private BigDecimal totalPurchaseAmount;

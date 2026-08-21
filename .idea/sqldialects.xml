@@ -4,6 +4,13 @@
     <file url="file://$PROJECT_DIR$/src/main/resources/db/init.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/schema-v2.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/schema.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/db/seed-v2-scenario2.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/db/seed-v2-scenario3.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/db/seed-v2-scenario4.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/db/seed-v2-scenario5.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/db/seed-v2-scenario6.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/db/seed-v2-scenario7.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/db/seed-v2-scenario8.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/seed-v2.sql" dialect="MySQL" />
   </component>
 </project>

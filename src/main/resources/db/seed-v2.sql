@@ -76,18 +76,31 @@ ON DUPLICATE KEY UPDATE
 --
 -- [2026-08-11] 코드 2건 정정 + 은행 3곳 추가
 --   0101 -> 0381 : 같은 KB국민카드인데 코드가 달랐다. 카탈로그 값이 0381 이다.
---   0301 -> 0240 : 카탈로그에 KB증권이 없고, **0301 은 카탈로그에서 신한카드**라 그대로 두면
---                  증권 계좌가 신한카드로 표시되는 사고가 난다. 카탈로그에 있는 증권사로 맞춘다.
+--   0301 -> 0218 : 0301 은 카탈로그에서 신한카드라 그대로 두면 증권 계좌가 신한카드로
+--                  표시된다. KB증권의 기관 코드 0218 로 분리한다.
 --   0090·0020·0092 신설 : 기관 선택 화면에는 은행 9곳이 뜨는데 계좌가 KB 하나뿐이라
 --                  다른 기관을 고르면 조회 결과가 0건이었다.
 --
--- [2026-08-19] InstitutionCatalog 19개 전기관으로 확장
---   그동안 목서버는 8개 기관뿐이었다 — 앱 InstitutionCatalog(은행9·카드6·증권4=19개)와
+-- [2026-08-19] InstitutionCatalog 20개 전기관으로 확장
+--   그동안 목서버는 8개 기관뿐이었다 — 앱 InstitutionCatalog(은행9·카드6·증권5=20개)와
 --   어긋나 있어 나머지 11곳을 고르면 여전히 "연동은 됐는데 데이터 0건"이 재발했다.
 --   은행 4곳(하나·NH농협·케이뱅크·IBK기업은행), 카드 5곳(신한·BC·삼성·현대·롯데),
---   증권 3곳(한국투자·NH투자·교보)을 추가해 카탈로그와 완전히 맞춘다.
+--   증권 4곳(KB·한국투자·NH투자·교보)을 추가해 카탈로그와 완전히 맞춘다.
 --   0301 은 위 2026-08-11 정리에서 "삭제한 구 코드"였지만, 카탈로그 기준으로는
 --   원래부터 신한카드다 — 여기서 신한카드로 정식 등록한다.
+--
+-- [2026-08-20] LOAN 업권(캐피탈·저축은행) 8곳 신설
+--   financial_institution 에 LOAN 타입이 하나도 없어, 아래 loan_account 시드가 어쩔 수 없이
+--   BANK 기관(0004 KB국민은행)에 얹혀 있었다 — findLoans() 조인 결과 institutionCode 가
+--   '0004' 로 나가 앱의 InstitutionCatalog.isLoanCode() 매칭이 항상 실패하는 상태였다.
+--   앱 InstitutionCatalog.LOANS(할부금융 5·저축은행 3)와 코드·이름을 정확히 맞춰 추가한다.
+--
+-- [2026-08-20] PAY_MONEY 업권 5곳 추가 + provider_code 오타 정리
+--   PAY_KB 하나만 있어 카카오페이·네이버페이·토스페이·페이코·쿠팡페이를 고르면 위 LOAN 과
+--   같은 이유로 "연동은 됐는데 데이터 0건"이 났다 — 나머지 5곳을 카탈로그와 맞춰 추가한다.
+--   추가로 pay_money.provider_code 시드값이 'KB_PAY' 로 잘못 들어가 있었다(financial_institution
+--   조인 키는 'PAY_KB' 로 맞는데 API 응답에 실리는 provider_code 컬럼만 따로 틀렸다) — 아래
+--   pay_money INSERT 앞의 UPDATE 문에서 정리한다.
 INSERT INTO financial_institution (
   institution_code, institution_name, institution_type_code, is_supported
 ) VALUES
@@ -100,6 +113,7 @@ INSERT INTO financial_institution (
   ('0011', 'NH농협은행', 'BANK', 1),
   ('0089', '케이뱅크', 'BANK', 1),
   ('0003', 'IBK기업은행', 'BANK', 1),
+  ('0218', 'KB증권', 'SECURITIES', 1),
   ('0240', '삼성증권', 'SECURITIES', 1),
   ('0243', '한국투자증권', 'SECURITIES', 1),
   ('0247', 'NH투자증권', 'SECURITIES', 1),
@@ -110,7 +124,20 @@ INSERT INTO financial_institution (
   ('0364', '삼성카드', 'CARD', 1),
   ('0366', '현대카드', 'CARD', 1),
   ('0371', '롯데카드', 'CARD', 1),
-  ('PAY_KB', 'KB Pay', 'PAY_MONEY', 1)
+  ('PAY_KB', 'KB Pay', 'PAY_MONEY', 1),
+  ('PAY_KAKAO', '카카오페이', 'PAY_MONEY', 1),
+  ('PAY_NAVER', '네이버페이', 'PAY_MONEY', 1),
+  ('PAY_TOSS', '토스페이', 'PAY_MONEY', 1),
+  ('PAY_PAYCO', '페이코', 'PAY_MONEY', 1),
+  ('PAY_CPANG', '쿠팡페이', 'PAY_MONEY', 1),
+  ('CP_KB', 'KB캐피탈', 'LOAN', 1),
+  ('CP_HYUNDAI', '현대캐피탈', 'LOAN', 1),
+  ('CP_SHINHAN', '신한캐피탈', 'LOAN', 1),
+  ('CP_HANA', '하나캐피탈', 'LOAN', 1),
+  ('CP_WOORI', '우리금융캐피탈', 'LOAN', 1),
+  ('SB_SBI', 'SBI저축은행', 'LOAN', 1),
+  ('SB_OK', 'OK저축은행', 'LOAN', 1),
+  ('SB_WELCOME', '웰컴저축은행', 'LOAN', 1)
 ON DUPLICATE KEY UPDATE
   institution_name = VALUES(institution_name),
   institution_type_code = VALUES(institution_type_code),
@@ -252,14 +279,23 @@ ON DUPLICATE KEY UPDATE
   raw_json = VALUES(raw_json),
   updated_at = CURRENT_TIMESTAMP;
 
+-- [2026-08-20] provider_code 오타 정리 — 'KB_PAY' 가 아니라 카탈로그 코드 'PAY_KB' 여야 한다.
+-- 이 값은 findPayMoney() 응답 providerCode 로 그대로 나가 앱 tbl_connected_account.bank_code 에
+-- 저장되는데, 'KB_PAY' 로 나가면 InstitutionCatalog.isPayMoneyCode()/아이콘 매칭이 전부 실패하고,
+-- AccountLinkService.directAssetPreviewGroups() 가 선택 코드('PAY_KB')와 이 값을 비교해
+-- 미리보기에 아예 안 뜨며, 최초 동기화(collectPayMoney → scope.includesCode)에서도 걸러져
+-- 계좌가 저장조차 안 되는(0건) 사고로 이어진다. 이미 잘못 들어간 행을 먼저 정리해 아래
+-- INSERT 의 ON DUPLICATE KEY UPDATE 가 새 행을 만들지 않고 기존 행을 그대로 갱신하게 한다.
+UPDATE pay_money SET provider_code = 'PAY_KB' WHERE provider_code = 'KB_PAY';
+
 INSERT INTO pay_money (
   user_id, institution_id, provider_code, provider_name, wallet_id, wallet_name,
   currency, balance, available_amount, point_amount, last_synced_at, raw_json
 )
 SELECT
-  u.id, i.id, 'KB_PAY', 'KB Pay', 'wallet-demo-normal-001', 'KB Pay Money',
+  u.id, i.id, 'PAY_KB', 'KB Pay', 'wallet-demo-normal-001', 'KB Pay Money',
   'KRW', 83500.00, 83500.00, 1240.00, '2026-07-31 10:30:00',
-  JSON_OBJECT('providerCode', 'KB_PAY', 'providerName', 'KB Pay', 'walletId', 'wallet-demo-normal-001', 'walletName', 'KB Pay Money')
+  JSON_OBJECT('providerCode', 'PAY_KB', 'providerName', 'KB Pay', 'walletId', 'wallet-demo-normal-001', 'walletName', 'KB Pay Money')
 FROM mock_user u
 JOIN financial_institution i ON i.institution_code = 'PAY_KB'
 WHERE u.scenario_key = 'demo-normal-user'
@@ -284,7 +320,7 @@ SELECT id, 'PAY-20260710-001', '2026-07-10 08:30:00', '01',
         NULL, NULL, NULL, 'Pay money charge',
        JSON_OBJECT('trType', '01', 'providerCode', provider_code, 'walletId', wallet_id)
 FROM pay_money
-WHERE provider_code = 'KB_PAY'
+WHERE provider_code = 'PAY_KB'
   AND wallet_id = 'wallet-demo-normal-001'
 ON DUPLICATE KEY UPDATE
   trans_type_code = VALUES(trans_type_code),
@@ -310,7 +346,7 @@ SELECT id, 'PAY-20260720-001', '2026-07-20 12:10:00', '02',
         'Mock Coffee', '5814', 'Coffee shop', 'Pay money payment',
         JSON_OBJECT('trType', '02', 'providerCode', provider_code, 'walletId', wallet_id, 'merchantName', 'Mock Coffee', 'merchantCategoryCode', '5814', 'merchantCategoryName', 'Coffee shop')
 FROM pay_money
-WHERE provider_code = 'KB_PAY'
+WHERE provider_code = 'PAY_KB'
   AND wallet_id = 'wallet-demo-normal-001'
 ON DUPLICATE KEY UPDATE
   trans_type_code = VALUES(trans_type_code),
@@ -377,9 +413,11 @@ SELECT
   5.1200, '2025-02-01', '2028-02-01', 615000.00, '2026-08-01', '2026-07-31 10:30:00',
   JSON_OBJECT('resLoanName', 'KB Credit Loan', 'resAccountType', '3001')
 FROM mock_user u
-JOIN financial_institution i ON i.institution_code = '0004'
+-- [2026-08-20] 0004(KB국민은행, BANK)는 대출 기관이 아니다 — LOAN 업권 CP_KB(KB캐피탈)로 정정
+JOIN financial_institution i ON i.institution_code = 'CP_KB'
 WHERE u.scenario_key = 'demo-normal-user'
 ON DUPLICATE KEY UPDATE
+  institution_id = VALUES(institution_id),
   product_name = VALUES(product_name),
   account_type_code = VALUES(account_type_code),
   repayment_method_code = VALUES(repayment_method_code),
@@ -422,7 +460,7 @@ SELECT
   '01', 'KRW', 120000.00, 1303600.00, '2026-07-31 10:30:00',
   JSON_OBJECT('resAccount', '987654******3210', 'resAccountName', 'KB Securities Trading Account')
 FROM mock_user u
-JOIN financial_institution i ON i.institution_code = '0240'
+JOIN financial_institution i ON i.institution_code = '0218'
 WHERE u.scenario_key = 'demo-normal-user'
 ON DUPLICATE KEY UPDATE
   product_name = VALUES(product_name),
@@ -438,10 +476,10 @@ INSERT INTO securities_holding (
   quantity, average_purchase_price, last_price, purchase_amount, market_value,
   profit_loss_amount, profit_loss_rate, valuation_at, raw_json
 )
-SELECT id, '005930', 'Samsung Electronics', 'KR', 'KRW',
+SELECT id, '016360', '삼성증권', 'KR', 'KRW',
        12.000000, 72000.00, 78500.00, 864000.00, 942000.00,
        78000.00, 9.0278, '2026-07-31 10:30:00',
-       JSON_OBJECT('isuCd', '005930', 'isuKorNm', 'Samsung Electronics')
+       JSON_OBJECT('isuCd', '016360', 'isuKorNm', '삼성증권')
 FROM securities_account
 WHERE account_no_masked = '987654******3210'
 ON DUPLICATE KEY UPDATE
@@ -481,13 +519,27 @@ ON DUPLICATE KEY UPDATE
   raw_json = VALUES(raw_json),
   updated_at = CURRENT_TIMESTAMP;
 
+-- 이전 시드를 적용한 개발 DB에도 증권사와 무관한 기존 종목을 남기지 않는다.
+DELETE h
+FROM securities_holding h
+JOIN securities_account a ON a.id = h.securities_account_id
+JOIN mock_user u ON u.id = a.user_id
+JOIN (
+  SELECT '987654******3210' AS account_no_masked, '005930' AS product_code
+  UNION ALL SELECT '551122******0011', '035420'
+  UNION ALL SELECT '662233******0022', '005380'
+  UNION ALL SELECT '773344******0033', '000270'
+) obsolete ON obsolete.account_no_masked = a.account_no_masked
+          AND obsolete.product_code = h.product_code
+WHERE u.scenario_key = 'demo-normal-user';
+
 INSERT INTO securities_transaction (
   securities_account_id, original_transaction_id, transacted_at, trans_type_code,
   trans_type_name, product_code, product_name, quantity, unit_price, transaction_amount, description, raw_json
 )
 SELECT id, 'SEC-20260729-001', '2026-07-29 09:15:00', '01',
-       'Buy', '005930', 'Samsung Electronics', 12.000000, 72000.00, 864000.00, 'Buy Samsung Electronics',
-       JSON_OBJECT('trType', '01', 'isuCd', '005930', 'isuKorNm', 'Samsung Electronics')
+       'Buy', '016360', '삼성증권', 12.000000, 72000.00, 864000.00, 'Buy 삼성증권',
+       JSON_OBJECT('trType', '01', 'isuCd', '016360', 'isuKorNm', '삼성증권')
 FROM securities_account
 WHERE account_no_masked = '987654******3210'
 ON DUPLICATE KEY UPDATE
@@ -572,11 +624,11 @@ ON DUPLICATE KEY UPDATE
 
 
 -- =====================================================================
--- [2026-08-11] 구 기관 코드 정리 — 0101 -> 0381 (KB국민카드), 0301 -> 0240 (증권)
+-- [2026-08-11] 구 기관 코드 정리 — 0101 -> 0381 (KB국민카드), 0301 -> 0218 (KB증권)
 --
 -- [2026-08-19] 0301 은 더 이상 정리(삭제) 대상이 아니다.
 --   카탈로그 기준으로 0301 은 원래부터 신한카드이고, 위 financial_institution INSERT 에서
---   그 정체로 정식 등록했다(19개 기관 확장). 예전엔 0301 을 "구 KB증권 코드"로 오인해
+--   그 정체로 정식 등록했다(20개 기관 확장). 예전엔 0301 을 "구 KB증권 코드"로 오인해
 --   여기서 지웠는데, 그대로 두면 방금 등록한 신한카드 행이 같은 스크립트 실행 중에
 --   바로 삭제되고 이후 카드 시드가 "기관 없음"으로 조용히 0행 들어간다 — 이 파일이
 --   경고하는 바로 그 사고 패턴이라 재발시키지 않는다.
@@ -599,9 +651,16 @@ ON DUPLICATE KEY UPDATE
 
 UPDATE securities_account a
   JOIN financial_institution old ON old.institution_code = '0301'
-  JOIN financial_institution new_i ON new_i.institution_code = '0240'
+  JOIN financial_institution new_i ON new_i.institution_code = '0218'
 SET a.institution_id = new_i.id, a.updated_at = CURRENT_TIMESTAMP
 WHERE a.institution_id = old.id;
+
+UPDATE securities_account a
+  JOIN financial_institution old ON old.institution_code = '0240'
+  JOIN financial_institution new_i ON new_i.institution_code = '0218'
+SET a.institution_id = new_i.id, a.updated_at = CURRENT_TIMESTAMP
+WHERE a.institution_id = old.id
+  AND a.product_name LIKE 'KB%';
 
 UPDATE bank_account a
   JOIN financial_institution old ON old.institution_code = '0101'
@@ -874,7 +933,7 @@ ON DUPLICATE KEY UPDATE
 -- [2026-08-19] demo-normal-user 신규 증권사 3곳 시드
 --
 -- 왜 필요했나 — 카드와 동일한 이유. InstitutionCatalog 의 증권 4곳 중
---   demo-normal-user 에게는 삼성증권(0240) 하나뿐이라, 한국투자·NH투자·교보증권을
+--   demo-normal-user 에게는 삼성증권(0240) 하나뿐이라, KB·한국투자·NH투자·교보증권을
 --   고르면 보유 종목이 0건이었다.
 -- =====================================================================
 
@@ -915,12 +974,12 @@ SELECT a.id, s.product_code, s.product_name, 'KR', 'KRW',
 FROM securities_account a
 JOIN mock_user u ON u.id = a.user_id
 JOIN (
-  SELECT '551122******0011' AS account_no_masked, '035420' AS product_code, 'NAVER' AS product_name,
+  SELECT '551122******0011' AS account_no_masked, '071050' AS product_code, '한국금융지주' AS product_name,
          6.000000 AS quantity, 210000.00 AS avg_price, 228000.00 AS last_price,
          1260000.00 AS purchase_amount, 1368000.00 AS market_value, 108000.00 AS profit_loss_amount, 8.5714 AS profit_loss_rate
   UNION ALL SELECT '551122******0011', '051910', 'LG화학', 1.000000, 420000.00, 452000.00, 420000.00, 452000.00, 32000.00, 7.6190
-  UNION ALL SELECT '662233******0022', '005380', '현대차', 5.000000, 190000.00, 188000.00, 950000.00, 940000.00, -10000.00, -1.0526
-  UNION ALL SELECT '773344******0033', '000270', '기아',   8.000000, 88000.00,  64000.00,  704000.00, 512000.00, -192000.00, -27.2727
+  UNION ALL SELECT '662233******0022', '005940', 'NH투자증권', 5.000000, 190000.00, 188000.00, 950000.00, 940000.00, -10000.00, -1.0526
+  UNION ALL SELECT '773344******0033', '030610', '교보증권', 8.000000, 88000.00,  64000.00,  704000.00, 512000.00, -192000.00, -27.2727
 ) s ON s.account_no_masked = a.account_no_masked
 WHERE u.scenario_key = 'demo-normal-user'
 ON DUPLICATE KEY UPDATE
@@ -947,9 +1006,9 @@ FROM securities_account a
 JOIN mock_user u ON u.id = a.user_id
 JOIN (
   SELECT '551122******0011' AS account_no_masked, 'SEC-20260812-201' AS tid, '2026-08-12 09:30:00' AS transacted_at,
-         '035420' AS product_code, 'NAVER' AS product_name, 6.000000 AS quantity, 210000.00 AS unit_price, 1260000.00 AS amount
-  UNION ALL SELECT '662233******0022', 'SEC-20260807-202', '2026-08-07 09:40:00', '005380', '현대차', 5.000000, 190000.00, 950000.00
-  UNION ALL SELECT '773344******0033', 'SEC-20260803-203', '2026-08-03 10:05:00', '000270', '기아',   8.000000, 88000.00,  704000.00
+         '071050' AS product_code, '한국금융지주' AS product_name, 6.000000 AS quantity, 210000.00 AS unit_price, 1260000.00 AS amount
+  UNION ALL SELECT '662233******0022', 'SEC-20260807-202', '2026-08-07 09:40:00', '005940', 'NH투자증권', 5.000000, 190000.00, 950000.00
+  UNION ALL SELECT '773344******0033', 'SEC-20260803-203', '2026-08-03 10:05:00', '030610', '교보증권', 8.000000, 88000.00,  704000.00
 ) s ON s.account_no_masked = a.account_no_masked
 WHERE u.scenario_key = 'demo-normal-user'
 ON DUPLICATE KEY UPDATE
@@ -968,7 +1027,7 @@ ON DUPLICATE KEY UPDATE
 -- [2026-08-11 병합] demo-normal-user2 통합 픽스처 (main) + 기관 코드 정정
 --
 -- ⚠ 아래 블록은 원래 card 를 '0101'(구 KB국민카드), securities_account 를 '0301'(구 KB증권)에
---    붙이고 있었다. 같은 커밋에서 그 두 기관 코드를 카탈로그 기준(0381 · 0240)으로 정정하고
+--    붙이고 있었다. 같은 커밋에서 그 두 기관 코드를 카탈로그 기준(0381 · 0218)으로 정정하고
 --    구 행을 삭제하므로, 코드를 그대로 두면 JOIN 이 성립하지 않아 **에러 없이 조용히 0행**이
 --    들어간다. 그래서 병합하면서 코드만 바꿨다 — 데이터·의미는 그대로다.
 --    (기관 코드는 소비처 앱의 InstitutionCatalog 와 같아야 한다. 위 financial_institution 주석 참고)
@@ -994,7 +1053,7 @@ WHERE u.scenario_key='demo-normal-user2'
 ON DUPLICATE KEY UPDATE valid_to=VALUES(valid_to), is_primary=VALUES(is_primary), source_type=VALUES(source_type), match_confidence=VALUES(match_confidence), updated_at=CURRENT_TIMESTAMP;
 
 INSERT INTO pay_money (user_id,institution_id,provider_code,provider_name,wallet_id,wallet_name,currency,balance,available_amount,point_amount,last_synced_at,raw_json)
-SELECT u.id,i.id,'KB_PAY','KB Pay','wallet-demo-normal-002','KB Pay 챌린지 지갑','KRW',130000.00,130000.00,800.00,'2026-08-31 23:00:00',JSON_OBJECT('scenarioKey','demo-normal-user2') FROM mock_user u JOIN financial_institution i ON i.institution_code='PAY_KB' WHERE u.scenario_key='demo-normal-user2'
+SELECT u.id,i.id,'PAY_KB','KB Pay','wallet-demo-normal-002','KB Pay 챌린지 지갑','KRW',130000.00,130000.00,800.00,'2026-08-31 23:00:00',JSON_OBJECT('scenarioKey','demo-normal-user2') FROM mock_user u JOIN financial_institution i ON i.institution_code='PAY_KB' WHERE u.scenario_key='demo-normal-user2'
 ON DUPLICATE KEY UPDATE balance=VALUES(balance),available_amount=VALUES(available_amount),point_amount=VALUES(point_amount),last_synced_at=VALUES(last_synced_at),raw_json=VALUES(raw_json),updated_at=CURRENT_TIMESTAMP;
 
 INSERT INTO deposit_account (user_id,institution_id,account_no_masked,product_name,deposit_type_code,account_status_code,currency,principal,balance,interest_rate,opened_at,maturity_date,last_synced_at,raw_json)
@@ -1002,11 +1061,11 @@ SELECT u.id,i.id,'110-***-SAVING2','KB 매월 챌린지 적금','2002','01','KRW
 ON DUPLICATE KEY UPDATE principal=VALUES(principal),balance=VALUES(balance),last_synced_at=VALUES(last_synced_at),raw_json=VALUES(raw_json),updated_at=CURRENT_TIMESTAMP;
 
 INSERT INTO loan_account (user_id,institution_id,loan_no_masked,product_name,account_type_code,account_status_code,repayment_method_code,currency,principal,outstanding_balance,interest_rate,start_date,maturity_date,monthly_payment,next_payment_date,last_synced_at,raw_json)
-SELECT u.id,i.id,'LN-TEST-****-2002','KB 생활안정 신용대출','3001','01','01','KRW',3000000.00,2100000.00,5.1000,'2026-04-10','2027-04-10',312000.00,'2026-09-05','2026-08-31 23:00:00',JSON_OBJECT('scenarioKey','demo-normal-user2') FROM mock_user u JOIN financial_institution i ON i.institution_code='0004' WHERE u.scenario_key='demo-normal-user2'
-ON DUPLICATE KEY UPDATE principal=VALUES(principal),outstanding_balance=VALUES(outstanding_balance),next_payment_date=VALUES(next_payment_date),last_synced_at=VALUES(last_synced_at),raw_json=VALUES(raw_json),updated_at=CURRENT_TIMESTAMP;
+SELECT u.id,i.id,'LN-TEST-****-2002','KB 생활안정 신용대출','3001','01','01','KRW',3000000.00,2100000.00,5.1000,'2026-04-10','2027-04-10',312000.00,'2026-09-05','2026-08-31 23:00:00',JSON_OBJECT('scenarioKey','demo-normal-user2') FROM mock_user u JOIN financial_institution i ON i.institution_code='CP_KB' WHERE u.scenario_key='demo-normal-user2'
+ON DUPLICATE KEY UPDATE institution_id=VALUES(institution_id),principal=VALUES(principal),outstanding_balance=VALUES(outstanding_balance),next_payment_date=VALUES(next_payment_date),last_synced_at=VALUES(last_synced_at),raw_json=VALUES(raw_json),updated_at=CURRENT_TIMESTAMP;
 
 INSERT INTO securities_account (user_id,institution_id,account_no_masked,product_name,account_type_code,account_status_code,currency,cash_balance,valuation_amount,last_synced_at,raw_json)
-SELECT u.id,i.id,'301-***-INV2002','KB 증권 투자계좌','4001','01','KRW',0.00,1674000.00,'2026-08-31 23:00:00',JSON_OBJECT('scenarioKey','demo-normal-user2') FROM mock_user u JOIN financial_institution i ON i.institution_code='0240' WHERE u.scenario_key='demo-normal-user2'
+SELECT u.id,i.id,'301-***-INV2002','KB 증권 투자계좌','4001','01','KRW',0.00,1674000.00,'2026-08-31 23:00:00',JSON_OBJECT('scenarioKey','demo-normal-user2') FROM mock_user u JOIN financial_institution i ON i.institution_code='0218' WHERE u.scenario_key='demo-normal-user2'
 ON DUPLICATE KEY UPDATE cash_balance=VALUES(cash_balance),valuation_amount=VALUES(valuation_amount),last_synced_at=VALUES(last_synced_at),raw_json=VALUES(raw_json),updated_at=CURRENT_TIMESTAMP;
 
 INSERT INTO bank_transaction (bank_account_id,original_transaction_id,transacted_at,trans_type_code,trans_type_name,amount,balance_after,description,raw_json)
@@ -1186,7 +1245,7 @@ WHERE u.scenario_key='1'
 ON DUPLICATE KEY UPDATE valid_to=VALUES(valid_to), is_primary=VALUES(is_primary), source_type=VALUES(source_type), match_confidence=VALUES(match_confidence), updated_at=CURRENT_TIMESTAMP;
 
 INSERT INTO pay_money (user_id,institution_id,provider_code,provider_name,wallet_id,wallet_name,currency,balance,available_amount,point_amount,last_synced_at,raw_json)
-SELECT u.id,i.id,'KB_PAY','KB Pay','wallet-demo-normal-002','KB Pay 챌린지 지갑','KRW',130000.00,130000.00,800.00,'2026-08-31 23:00:00',JSON_OBJECT('scenarioKey','demo-normal-user2') FROM mock_user u JOIN financial_institution i ON i.institution_code='PAY_KB' WHERE u.scenario_key='1'
+SELECT u.id,i.id,'PAY_KB','KB Pay','wallet-demo-normal-002','KB Pay 챌린지 지갑','KRW',130000.00,130000.00,800.00,'2026-08-31 23:00:00',JSON_OBJECT('scenarioKey','demo-normal-user2') FROM mock_user u JOIN financial_institution i ON i.institution_code='PAY_KB' WHERE u.scenario_key='1'
 ON DUPLICATE KEY UPDATE balance=VALUES(balance),available_amount=VALUES(available_amount),point_amount=VALUES(point_amount),last_synced_at=VALUES(last_synced_at),raw_json=VALUES(raw_json),updated_at=CURRENT_TIMESTAMP;
 
 INSERT INTO deposit_account (user_id,institution_id,account_no_masked,product_name,deposit_type_code,account_status_code,currency,principal,balance,interest_rate,opened_at,maturity_date,last_synced_at,raw_json)
@@ -1194,15 +1253,15 @@ SELECT u.id,i.id,'110-***-SAVING2','KB 매월 챌린지 적금','2002','01','KRW
 ON DUPLICATE KEY UPDATE principal=VALUES(principal),balance=VALUES(balance),last_synced_at=VALUES(last_synced_at),raw_json=VALUES(raw_json),updated_at=CURRENT_TIMESTAMP;
 
 INSERT INTO loan_account (user_id,institution_id,loan_no_masked,product_name,account_type_code,account_status_code,repayment_method_code,currency,principal,outstanding_balance,interest_rate,start_date,maturity_date,monthly_payment,next_payment_date,last_synced_at,raw_json)
-SELECT u.id,i.id,'LN-TEST-****-2002','KB 생활안정 신용대출','3001','01','01','KRW',3000000.00,2100000.00,5.1000,'2026-04-10','2027-04-10',312000.00,'2026-09-05','2026-08-31 23:00:00',JSON_OBJECT('scenarioKey','demo-normal-user2') FROM mock_user u JOIN financial_institution i ON i.institution_code='0004' WHERE u.scenario_key='1'
-ON DUPLICATE KEY UPDATE principal=VALUES(principal),outstanding_balance=VALUES(outstanding_balance),next_payment_date=VALUES(next_payment_date),last_synced_at=VALUES(last_synced_at),raw_json=VALUES(raw_json),updated_at=CURRENT_TIMESTAMP;
+SELECT u.id,i.id,'LN-TEST-****-2002','KB 생활안정 신용대출','3001','01','01','KRW',3000000.00,2100000.00,5.1000,'2026-04-10','2027-04-10',312000.00,'2026-09-05','2026-08-31 23:00:00',JSON_OBJECT('scenarioKey','demo-normal-user2') FROM mock_user u JOIN financial_institution i ON i.institution_code='CP_KB' WHERE u.scenario_key='1'
+ON DUPLICATE KEY UPDATE institution_id=VALUES(institution_id),principal=VALUES(principal),outstanding_balance=VALUES(outstanding_balance),next_payment_date=VALUES(next_payment_date),last_synced_at=VALUES(last_synced_at),raw_json=VALUES(raw_json),updated_at=CURRENT_TIMESTAMP;
 
--- [2026-08-19] 구 코드 0301(이제는 카탈로그상 신한카드)이 아니라 0240(삼성증권)을 참조한다.
--- demo-normal-user2 원본(위쪽 758번째 줄 근처)은 0240 을 쓰는데 이 복제본만 0301 이 남아 있었다.
+-- [2026-08-19] 구 코드 0301(이제는 카탈로그상 신한카드)이 아니라 0218(KB증권)을 참조한다.
+-- demo-normal-user2 원본은 0218 을 쓰는데 이 복제본만 0301 이 남아 있었다.
 -- 예전엔 0301 도 이 스크립트가 삭제하던 구 코드라 조용히 0행이었고, 0301 을 신한카드로
 -- 되살린 뒤로는 고치지 않으면 이 증권 계좌가 신한카드 밑에 잘못 연결된다.
 INSERT INTO securities_account (user_id,institution_id,account_no_masked,product_name,account_type_code,account_status_code,currency,cash_balance,valuation_amount,last_synced_at,raw_json)
-SELECT u.id,i.id,'301-***-INV2002','KB 증권 투자계좌','4001','01','KRW',0.00,1674000.00,'2026-08-31 23:00:00',JSON_OBJECT('scenarioKey','demo-normal-user2') FROM mock_user u JOIN financial_institution i ON i.institution_code='0240' WHERE u.scenario_key='1'
+SELECT u.id,i.id,'301-***-INV2002','KB 증권 투자계좌','4001','01','KRW',0.00,1674000.00,'2026-08-31 23:00:00',JSON_OBJECT('scenarioKey','demo-normal-user2') FROM mock_user u JOIN financial_institution i ON i.institution_code='0218' WHERE u.scenario_key='1'
 ON DUPLICATE KEY UPDATE cash_balance=VALUES(cash_balance),valuation_amount=VALUES(valuation_amount),last_synced_at=VALUES(last_synced_at),raw_json=VALUES(raw_json),updated_at=CURRENT_TIMESTAMP;
 
 INSERT INTO bank_transaction (bank_account_id,original_transaction_id,transacted_at,trans_type_code,trans_type_name,amount,balance_after,description,raw_json)
@@ -1356,4 +1415,3 @@ SET t.amount = CASE t.original_transaction_id
     t.updated_at = CURRENT_TIMESTAMP
 WHERE u.scenario_key='1'
   AND t.original_transaction_id IN ('N2-B-018','N2-B-019','N2-B-020','N2-B-021','N2-B-022','N2-B-023','N2-B-024','N2-B-025','N2-B-026','N2-B-027','N2-B-028','N2-B-029','N2-B-030','N2-B-031','N2-B-032');
-

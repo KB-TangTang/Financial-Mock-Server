@@ -171,7 +171,7 @@ v2 seed 기준 파일은 `src/main/resources/db/seed-v2.sql`입니다.
 - 테스트 사용자:
   - `demo-normal-user`
   - `demo-empty-user`
-- 금융기관 (20곳 — 탕탕 앱 `InstitutionCatalog` 19개 전기관 + KB Pay):
+- 금융기관 (34곳 — 탕탕 앱 `InstitutionCatalog` 전기관: 은행9·카드6·증권5·대출8·페이머니6):
 
   | 코드 | 이름 | 구분 |
   |---|---|---|
@@ -190,18 +190,42 @@ v2 seed 기준 파일은 `src/main/resources/db/seed-v2.sql`입니다.
   | `0364` | 삼성카드 | CARD |
   | `0366` | 현대카드 | CARD |
   | `0371` | 롯데카드 | CARD |
+  | `0218` | KB증권 | SECURITIES |
   | `0240` | 삼성증권 | SECURITIES |
   | `0243` | 한국투자증권 | SECURITIES |
   | `0247` | NH투자증권 | SECURITIES |
   | `0261` | 교보증권 | SECURITIES |
+  | `CP_KB` | KB캐피탈 | LOAN |
+  | `CP_HYUNDAI` | 현대캐피탈 | LOAN |
+  | `CP_SHINHAN` | 신한캐피탈 | LOAN |
+  | `CP_HANA` | 하나캐피탈 | LOAN |
+  | `CP_WOORI` | 우리금융캐피탈 | LOAN |
+  | `SB_SBI` | SBI저축은행 | LOAN |
+  | `SB_OK` | OK저축은행 | LOAN |
+  | `SB_WELCOME` | 웰컴저축은행 | LOAN |
   | `PAY_KB` | KB Pay | PAY_MONEY |
+  | `PAY_KAKAO` | 카카오페이 | PAY_MONEY |
+  | `PAY_NAVER` | 네이버페이 | PAY_MONEY |
+  | `PAY_TOSS` | 토스페이 | PAY_MONEY |
+  | `PAY_PAYCO` | 페이코 | PAY_MONEY |
+  | `PAY_CPANG` | 쿠팡페이 | PAY_MONEY |
 
   > ⚠ **기관 코드는 소비처(탕탕 앱)의 `InstitutionCatalog` 와 같아야 합니다.**
   > 앱은 계좌 응답의 `institutionCode` 로 "사용자가 고른 기관"과 대조해 거르므로,
   > 코드가 어긋난 계좌는 조회돼도 화면에서 통째로 버려집니다.
-  > 2026-08-11 에 `0101`(KB국민카드) → `0381`, `0301`(KB증권) → `0240`(삼성증권)으로 정정했습니다.
-  > 2026-08-19 에 나머지 12개 기관(은행 4·카드 5·증권 3)을 추가해 카탈로그와 완전히 맞췄습니다.
+  > 2026-08-11 에 `0101`(KB국민카드) → `0381`, `0301`(구 KB증권) → `0218`(KB증권)으로 정정했습니다.
+  > 2026-08-19 에 나머지 13개 기관(은행 4·카드 5·증권 4)을 추가해 카탈로그와 완전히 맞췄습니다.
   > `0301` 은 카탈로그 기준으로 원래부터 **신한카드**이며, 지금은 그 정체로 정식 등록되어 있습니다.
+  > 2026-08-20 에 LOAN 업권(캐피탈 5·저축은행 3) 8곳을 추가했습니다. 그 전까지는 LOAN 타입
+  > 기관이 하나도 없어 대출 계좌가 전부 BANK 기관(`0004`)에 잘못 연결돼 있었고,
+  > `institutionCode` 가 `CP_*`/`SB_*` 형식으로 나가지 않아 앱의 `InstitutionCatalog.isLoanCode()`
+  > 매칭이 항상 실패했습니다.
+  > 2026-08-20 에 PAY_MONEY 업권도 5곳(카카오·네이버·토스·페이코·쿠팡페이) 추가했습니다.
+  > 추가로 `pay_money.provider_code` 시드값이 `'KB_PAY'`(오타)로 들어가 있었습니다 — 기관
+  > 조인 키는 `PAY_KB`로 맞는데 API 응답에 실리는 `provider_code` 컬럼만 따로 틀려 있어,
+  > `InstitutionCatalog.isPayMoneyCode()`/아이콘 매칭이 항상 실패했고 계좌 연동 시
+  > 기관 선택 코드(`PAY_KB`)와 비교가 어긋나 최초 동기화에서 KB Pay 가 아예 저장되지
+  > 않는(0건) 문제까지 있었습니다. `'PAY_KB'` 로 정정했습니다.
 
 - 정상 사용자용 샘플 데이터 (demo-normal-user 기준. 은행·카드·증권은 19개 기관 전체에 계좌가 있습니다):
   - **은행 계좌 13개 (9개 기관 전체) 및 계좌별 거래내역 2건씩**
@@ -211,7 +235,7 @@ v2 seed 기준 파일은 `src/main/resources/db/seed-v2.sql`입니다.
   - 페이머니
   - 예적금 계좌 및 거래내역
   - 대출 계좌 및 상환내역
-  - **증권 계좌 4개 (4개 기관 전체)**, 보유 종목·증권 거래내역 포함(2026-08-19 증권 3곳 추가)
+  - **증권 계좌 5개 (5개 기관 전체)**, 보유 종목·증권 거래내역 포함(2026-08-19 증권 4곳 추가)
 - 빈 데이터/토큰 만료 fixture 응답
 
 ### scenario_key='2' (거래내역 카테고리 분류 테스트 전용)
@@ -326,6 +350,27 @@ scenario4/6/7 처럼 `is_large`/`is_checkcard`/`small_bc`/`large_bc`/`daily_coun
 양쪽 금액 전부 일치, `MIN(balance_after)` 646,900원(마이너스 없음), 재실행 전/후 행 수
 동일(멱등).
 
+### scenario_key='9' (카드 승인/은행 정합성 검증 — 병렬 사용자)
+
+별도 파일 `src/main/resources/db/seed-v2-scenario9.sql` 로 분리돼 있습니다(2026-08-19 추가).
+`seed-v2.sql` 이 넣는 `financial_institution`(KB국민은행 `0004`, KB국민카드 `0381`)에
+의존하므로 **`schema-v2.sql` → `seed-v2.sql` → `seed-v2-scenario9.sql` 순서로 적용**해야 합니다.
+
+scenario_key='3'/'4'/'5'/'6'/'7'/'8' 과 **완전히 동일한 그룹 A/B/C 구조**(계좌 1개, 신용카드
+1장 + 체크카드 1장, 결정론적 MOD 생성 로직)를 그대로 재사용하는 독립된 사용자입니다 —
+계좌/카드 번호만 다르고(`004909******9009`, `9490-****-****-9901`, `5210-****-****-9902`),
+scenario4/6/7/8 처럼 `is_large`/`is_checkcard`/`small_bc`/`large_bc`/`daily_count` 의 곱셈
+계수를 3/4/5/6/7/8 어느 것과도 겹치지 않는 새 값으로 골라 날짜별 카테고리·금액·체크/신용
+배정이 실제로 다르게 나옵니다. 상세 구조는 scenario_key='3' 절을 참고하세요. 초기에 골랐던
+large idx 계수(97/101)는 로컬 검증에서 고액군 15개 중 2개(주유/충전·숙박)가 153일 동안 한
+번도 안 뽑히는 걸 발견해 139/109 로 교체했습니다(고액군은 전체 이벤트의 ~6%뿐이라 표본이
+작아 계수에 따라 특정 잔차가 통째로 비는 경우가 생길 수 있음 — 계수를 바꿀 때는 반드시
+44개 소분류 커버리지를 다시 확인할 것). 로컬 검증 결과: `card_approval` 524건 ·
+`bank_transaction` 230건 · `card_bill` 5건, 44개 소분류 전부 커버, 신용카드 월별 정산
+금액이 그 달 `card_approval` 합계와 정확히 일치(이중계산 없음, 정산행 `challengeCategory` 는
+JSON `null`), 체크카드 쌍은 `correlationId` 기준으로 양쪽 금액 전부 일치, `MIN(balance_after)`
+747,400원(마이너스 없음), 재실행 전/후 행 수 동일(멱등).
+
 ## 개발 환경
 
 - Java 17
@@ -374,6 +419,7 @@ src/main/resources
   db/seed-v2-scenario6.sql  scenario_key='6' 카드 승인/은행 정합성 테스트, 병렬 사용자 (seed-v2.sql 이후 적용)
   db/seed-v2-scenario7.sql  scenario_key='7' 카드 승인/은행 정합성 테스트, 병렬 사용자 (seed-v2.sql 이후 적용)
   db/seed-v2-scenario8.sql  scenario_key='8' 카드 승인/은행 정합성 테스트, 병렬 사용자 (seed-v2.sql 이후 적용)
+  db/seed-v2-scenario9.sql  scenario_key='9' 카드 승인/은행 정합성 테스트, 병렬 사용자 (seed-v2.sql 이후 적용)
   db/schema.sql             구버전 mock_codef_* schema
   db/seed.sql               구버전 seed
   db/init.sql               구버전 통합 실행 스크립트
