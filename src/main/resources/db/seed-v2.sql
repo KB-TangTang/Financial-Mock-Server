@@ -1,5 +1,7 @@
 USE financial_mock;
 
+SET SQL_SAFE_UPDATES = 0;
+
 INSERT INTO mock_scenario (
   scenario_code, name, description, http_status, app_code, latency_ms, is_default
 ) VALUES
