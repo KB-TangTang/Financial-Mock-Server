@@ -167,7 +167,7 @@
     <select id="findPayMoney" resultType="com.financial.mockserver.dto.PayMoneyResponse">
         SELECT
             p.id AS payMoneyId,
-            p.provider_code AS providerCode,
+            i.institution_code AS providerCode,
             p.provider_name AS providerName,
             i.institution_name AS institutionName,
             p.wallet_name AS walletName,

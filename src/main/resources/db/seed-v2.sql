@@ -113,7 +113,6 @@ INSERT INTO financial_institution (
   ('0011', 'NH농협은행', 'BANK', 1),
   ('0089', '케이뱅크', 'BANK', 1),
   ('0003', 'IBK기업은행', 'BANK', 1),
-  ('0218', 'KB증권', 'SECURITIES', 1),
   ('0240', '삼성증권', 'SECURITIES', 1),
   ('0243', '한국투자증권', 'SECURITIES', 1),
   ('0247', 'NH투자증권', 'SECURITIES', 1),
@@ -124,20 +123,7 @@ INSERT INTO financial_institution (
   ('0364', '삼성카드', 'CARD', 1),
   ('0366', '현대카드', 'CARD', 1),
   ('0371', '롯데카드', 'CARD', 1),
-  ('PAY_KB', 'KB Pay', 'PAY_MONEY', 1),
-  ('PAY_KAKAO', '카카오페이', 'PAY_MONEY', 1),
-  ('PAY_NAVER', '네이버페이', 'PAY_MONEY', 1),
-  ('PAY_TOSS', '토스페이', 'PAY_MONEY', 1),
-  ('PAY_PAYCO', '페이코', 'PAY_MONEY', 1),
-  ('PAY_CPANG', '쿠팡페이', 'PAY_MONEY', 1),
-  ('CP_KB', 'KB캐피탈', 'LOAN', 1),
-  ('CP_HYUNDAI', '현대캐피탈', 'LOAN', 1),
-  ('CP_SHINHAN', '신한캐피탈', 'LOAN', 1),
-  ('CP_HANA', '하나캐피탈', 'LOAN', 1),
-  ('CP_WOORI', '우리금융캐피탈', 'LOAN', 1),
-  ('SB_SBI', 'SBI저축은행', 'LOAN', 1),
-  ('SB_OK', 'OK저축은행', 'LOAN', 1),
-  ('SB_WELCOME', '웰컴저축은행', 'LOAN', 1)
+  ('PAY_KB', 'KB Pay', 'PAY_MONEY', 1)
 ON DUPLICATE KEY UPDATE
   institution_name = VALUES(institution_name),
   institution_type_code = VALUES(institution_type_code),
@@ -278,15 +264,6 @@ ON DUPLICATE KEY UPDATE
   paid_amount = VALUES(paid_amount),
   raw_json = VALUES(raw_json),
   updated_at = CURRENT_TIMESTAMP;
-
--- [2026-08-20] provider_code 오타 정리 — 'KB_PAY' 가 아니라 카탈로그 코드 'PAY_KB' 여야 한다.
--- 이 값은 findPayMoney() 응답 providerCode 로 그대로 나가 앱 tbl_connected_account.bank_code 에
--- 저장되는데, 'KB_PAY' 로 나가면 InstitutionCatalog.isPayMoneyCode()/아이콘 매칭이 전부 실패하고,
--- AccountLinkService.directAssetPreviewGroups() 가 선택 코드('PAY_KB')와 이 값을 비교해
--- 미리보기에 아예 안 뜨며, 최초 동기화(collectPayMoney → scope.includesCode)에서도 걸러져
--- 계좌가 저장조차 안 되는(0건) 사고로 이어진다. 이미 잘못 들어간 행을 먼저 정리해 아래
--- INSERT 의 ON DUPLICATE KEY UPDATE 가 새 행을 만들지 않고 기존 행을 그대로 갱신하게 한다.
-UPDATE pay_money SET provider_code = 'PAY_KB' WHERE provider_code = 'KB_PAY';
 
 INSERT INTO pay_money (
   user_id, institution_id, provider_code, provider_name, wallet_id, wallet_name,
